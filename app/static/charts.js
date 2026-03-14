@@ -1,54 +1,79 @@
 const assetSelect = document.getElementById("assetSelect");
-const traderSelect = document.getElementById("traderSelect");
 const chartDiv = document.getElementById("chart");
 
-async function loadAssets() {
-    const res = await fetch("/assets");
-    const assets = await res.json();
-    assets.forEach(asset => {
-        let option = document.createElement("option");
-        option.value = asset;
-        option.text = asset;
-        assetSelect.add(option);
-    });
+
+async function loadAssets(){
+
+const res = await fetch("/assets")
+
+const assets = await res.json()
+
+assets.forEach(asset => {
+
+let option = document.createElement("option")
+
+option.value = asset
+option.text = asset
+
+assetSelect.add(option)
+
+})
+
 }
 
-async function loadTraders() {
-    const res = await fetch("/traders");
-    const traders = await res.json();
-    traders.forEach(trader => {
-        let option = document.createElement("option");
-        option.value = trader;
-        option.text = trader;
-        traderSelect.add(option);
-    });
+async function loadChart(){
+
+const asset = assetSelect.value
+
+const res = await fetch(`/data?asset=${asset}`)
+
+const data = await res.json()
+
+if(data.length === 0){
+
+chartDiv.innerHTML="No data"
+
+return
+
 }
 
-async function loadChart() {
-    const asset = assetSelect.value;
-    const trader = traderSelect.value;
-    const res = await fetch(`/data?asset=${asset}&trader=${trader}`);
-    const data = await res.json();
+const groups = {}
 
-    if (!data.positions) {
-        chartDiv.innerHTML = 'No data found.';
-        return;
-    }
+data.forEach(d=>{
 
-    const allData = data.positions.find(d => d.category === "All");
-    if (!allData) {
-        chartDiv.innerHTML = 'No positions found.';
-        return;
-    }
+if(!groups[d.Trader_Type]){
 
-    const values = allData.values;
-    const dates = values.map((v,i) => i); 
-
-    const trace = { x: dates, y: values, type: 'scatter' };
-    Plotly.newPlot(chartDiv, [trace], {title: `${asset} - ${trader} Positions`});
+groups[d.Trader_Type]={
+x:[],
+y:[]
 }
 
-assetSelect.addEventListener("change", loadChart);
-traderSelect.addEventListener("change", loadChart);
+}
 
-Promise.all([loadAssets(), loadTraders()]).then(loadChart);
+groups[d.Trader_Type].x.push(d.Date)
+groups[d.Trader_Type].y.push(d.Net_Position)
+
+})
+
+const traces=[]
+
+for(const trader in groups){
+
+traces.push({
+
+x:groups[trader].x,
+y:groups[trader].y,
+mode:"lines",
+name:trader
+
+})
+
+}
+
+Plotly.newPlot(chartDiv,traces,{title:asset+" COT Net Positions"})
+
+}
+
+assetSelect.addEventListener("change",loadChart)
+
+loadAssets().then(loadChart)

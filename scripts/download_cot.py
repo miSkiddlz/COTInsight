@@ -1,14 +1,17 @@
 import requests, zipfile, io, os
 
-# Stelle sicher, dass data/ existiert
+# Ordner sicherstellen
 os.makedirs("data", exist_ok=True)
 
-# URL zum COT ZIP (Beispiel für Futures)
+# COT ZIP (aktuellstes Beispiel)
 url = "https://www.cftc.gov/files/dea/history/fut_disagg_txt_2024.zip"
-
 r = requests.get(url)
 z = zipfile.ZipFile(io.BytesIO(r.content))
-# Entpacke direkt in data/
 z.extractall("data/")
 
-print("COT Daten heruntergeladen und in 'data/' entpackt.")
+# Prüfen, welche TXT-Datei jetzt da ist
+txt_files = [f for f in os.listdir("data") if f.endswith(".txt")]
+if not txt_files:
+    raise FileNotFoundError("Keine TXT-Datei im ZIP gefunden!")
+
+print(f"Gefundene COT Datei: {txt_files[0]}")

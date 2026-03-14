@@ -3,13 +3,21 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 import os, json
 from scripts import fetch_cot_api  
+from fastapi.responses import HTMLResponse
+from pathlib import Path
 
 app = FastAPI(title="COTInsight API")
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
+DATA_DIR = Path(__file__).parent.parent / "data"
 
 DATA_FILE = "data/cot_data.json"
 
+@app.get("/", response_class=HTMLResponse)
+async def index():
+    index_file = Path(__file__).parent / "static" / "index.html"
+    return index_file.read_text()
+    
 @app.on_event("startup")
 def startup():
     if not os.path.exists(DATA_FILE):

@@ -2,7 +2,6 @@ const assetSelect = document.getElementById("assetSelect");
 const traderSelect = document.getElementById("traderSelect");
 const chartDiv = document.getElementById("chart");
 
-// Lädt alle Assets aus Backend und füllt das Dropdown
 async function loadAssets() {
     const res = await fetch("/assets");
     const assets = await res.json();
@@ -14,7 +13,6 @@ async function loadAssets() {
     });
 }
 
-// Lädt alle Trader-Typen aus Backend und füllt das Dropdown
 async function loadTraders() {
     const res = await fetch("/traders");
     const traders = await res.json();
@@ -26,33 +24,31 @@ async function loadTraders() {
     });
 }
 
-// Lädt Chart-Daten für gewähltes Asset + Trader-Typ
 async function loadChart() {
     const asset = assetSelect.value;
     const trader = traderSelect.value;
     const res = await fetch(`/data?asset=${asset}&trader=${trader}`);
     const data = await res.json();
 
-    if (data.length === 0) {
-        chartDiv.innerHTML = 'No data found for this selection.';
+    if (!data.positions) {
+        chartDiv.innerHTML = 'No data found.';
         return;
     }
 
-    const dates = data.map(d => d.Date);
-    const net_position = data.map(d => d.Net_Position);
+    const allData = data.positions.find(d => d.category === "All");
+    if (!allData) {
+        chartDiv.innerHTML = 'No positions found.';
+        return;
+    }
 
-    const trace = {
-        x: dates,
-        y: net_position,
-        type: 'scatter'
-    };
+    const values = allData.values;
+    const dates = values.map((v,i) => i); 
 
-    Plotly.newPlot(chartDiv, [trace], {title: `${asset} - ${trader} Net Position`});
+    const trace = { x: dates, y: values, type: 'scatter' };
+    Plotly.newPlot(chartDiv, [trace], {title: `${asset} - ${trader} Positions`});
 }
 
-// Event-Listener für Dropdown-Wechsel
 assetSelect.addEventListener("change", loadChart);
 traderSelect.addEventListener("change", loadChart);
 
-// Initialisierung: Assets, Trader, Chart
 Promise.all([loadAssets(), loadTraders()]).then(loadChart);

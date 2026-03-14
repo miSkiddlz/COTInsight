@@ -1,0 +1,10 @@
+# Verzeichnisse
+data/
+__pycache__/
+
+# Python bytecode
+*.pyc
+
+#Virtual Environment 
+venv/
+.env

@@ -5,9 +5,8 @@ import os
 import json
 import requests
 import re
-from datetime import datetime
 
-app = FastAPI(title="COTInsight API")
+app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
@@ -16,7 +15,7 @@ DATA_FILE = "data/cot_data.json"
 
 def build_cot_data():
 
-    print("Building COT dataset...")
+    print("Downloading COT report...")
 
     os.makedirs("data", exist_ok=True)
 
@@ -28,71 +27,62 @@ def build_cot_data():
         print("Download failed")
         return
 
-    txt = r.text.splitlines()
+    lines = r.text.splitlines()
 
     data = []
 
     current_market = None
-    current_date = None
 
-    for line in txt:
+    for line in lines:
 
-        if "Disaggregated Commitments of Traders" in line:
-
-            m = re.search(r'([A-Za-z]+\s+\d+,\s+\d+)', line)
-
-            if m:
-                current_date = datetime.strptime(
-                    m.group(1),
-                    "%B %d, %Y"
-                ).strftime("%Y-%m-%d")
-
-        if "-" in line and "EXCHANGE" in line:
+        # Market erkennen
+        if "FUTURES EXCHANGE" in line:
 
             current_market = line.split("-")[0].strip()
 
+        # Positions erkennen
         if line.startswith("All"):
 
-            numbers = [
-                int(x.replace(",", ""))
-                for x in re.findall(r'\d[\d,]*', line)
-            ]
+            nums = re.findall(r'\d[\d,]*', line)
 
-            if len(numbers) < 12:
+            nums = [int(x.replace(",", "")) for x in nums]
+
+            if len(nums) < 11:
                 continue
 
-            producer_long = numbers[1]
-            producer_short = numbers[2]
+            producer = nums[1] - nums[2]
+            swap = nums[3] - nums[4]
+            managed = nums[6] - nums[7]
+            other = nums[9] - nums[10]
 
-            swap_long = numbers[3]
-            swap_short = numbers[4]
+            data.append({
+                "Market": current_market,
+                "Trader_Type": "Producer/Merchant",
+                "Net_Position": producer
+            })
 
-            managed_long = numbers[6]
-            managed_short = numbers[7]
+            data.append({
+                "Market": current_market,
+                "Trader_Type": "Swap Dealers",
+                "Net_Position": swap
+            })
 
-            other_long = numbers[9]
-            other_short = numbers[10]
+            data.append({
+                "Market": current_market,
+                "Trader_Type": "Managed Money",
+                "Net_Position": managed
+            })
 
-            traders = [
-                ("Producer/Merchant", producer_long, producer_short),
-                ("Swap Dealers", swap_long, swap_short),
-                ("Managed Money", managed_long, managed_short),
-                ("Other Reportables", other_long, other_short),
-            ]
-
-            for trader, long_pos, short_pos in traders:
-
-                data.append({
-                    "Date": current_date,
-                    "Market": current_market,
-                    "Trader_Type": trader,
-                    "Net_Position": long_pos - short_pos
-                })
+            data.append({
+                "Market": current_market,
+                "Trader_Type": "Other Reportables",
+                "Net_Position": other
+            })
 
     with open(DATA_FILE, "w") as f:
         json.dump(data, f)
 
-    print("COT dataset built:", len(data))
+    print("Markets parsed:", len(data))
 
 
 @app.on_event("startup")
@@ -117,7 +107,7 @@ def get_assets():
     with open(DATA_FILE) as f:
         data = json.load(f)
 
-    markets = sorted(list(set(d["Market"] for d in data)))
+    markets = sorted(set(d["Market"] for d in data if d["Market"]))
 
     return markets
 

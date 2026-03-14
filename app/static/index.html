@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>COTInsight</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>COTInsight – CFTC COT Visualizer</h1>
+    <label>Asset:</label>
+    <select id="assetSelect"></select>
+    <label>Trader Type:</label>
+    <select id="traderSelect">
+        <option value="Commercial">Commercial</option>
+        <option value="Non-Commercial">Speculators</option>
+        <option value="Retail">Retail</option>
+    </select>
+    <div id="chart"></div>
+
+    <script src="charts.js"></script>
+</body>
+</html>

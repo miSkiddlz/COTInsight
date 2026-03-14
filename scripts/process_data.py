@@ -1,7 +1,7 @@
-import pandas as pd
 import os
+import re
+import json
 
-# TXT-Datei automatisch finden
 txt_files = [f for f in os.listdir("data") if f.endswith(".txt")]
 if not txt_files:
     raise FileNotFoundError("Keine TXT-Datei im data/ Ordner gefunden!")
@@ -9,23 +9,52 @@ if not txt_files:
 txt_path = os.path.join("data", txt_files[0])
 print(f"Verarbeite Datei: {txt_path}")
 
-# Beispiel Fixed-Width Columns (anpassen!)
-colspecs = [(0, 12), (12, 32), (32, 45), (45, 58), (58, 70)]
-column_names = ['Date', 'Market', 'Trader_Type', 'Long', 'Short']
+# result JSON
+cot_json = {}
 
-df = pd.read_fwf(txt_path, colspecs=colspecs, names=column_names, skiprows=1)
+current_block = None
 
-# Zahlen bereinigen: nur Ziffern, Kommas entfernen, fehlende Werte auf 0
-for col in ['Long', 'Short']:
-    df[col] = df[col].astype(str) \
-                     .str.replace(',', '') \
-                     .str.extract('(\d+)') \
-                     .fillna(0) \
-                     .astype(int)
+with open(txt_path, "r") as f:
+    for line in f:
+        line = line.strip()
+        if not line:
+            continue
 
-# Netto-Position
-df['Net_Position'] = df['Long'] - df['Short']
+        if "Positions" in line and "All" not in line:
+            current_block = "positions"
+            cot_json[current_block] = []
+            continue
+        elif "Changes in Commitments" in line:
+            current_block = "changes"
+            cot_json[current_block] = []
+            continue
+        elif "Percent of Open Interest" in line:
+            current_block = "percent"
+            cot_json[current_block] = []
+            continue
+        elif "Number of Traders" in line:
+            current_block = "traders"
+            cot_json[current_block] = []
+            continue
+        elif "Percent of Open Interest Held" in line:
+            current_block = "largest_traders"
+            cot_json[current_block] = []
+            continue
 
-# CSV speichern
-df.to_csv("data/cot_data.csv", index=False)
-print("COT Daten verarbeitet und gespeichert in 'data/cot_data.csv'.")
+        m = re.match(r'^(All|Old|Other)\s*:\s*(.*)$', line)
+        if m and current_block:
+            category = m.group(1)
+            rest = m.group(2)
+
+            numbers = [int(n.replace(",", "")) for n in re.findall(r'\d+', rest)]
+
+            cot_json[current_block].append({
+                "category": category,
+                "values": numbers
+            })
+
+# JSON save
+with open("data/cot_data.json", "w") as f:
+    json.dump(cot_json, f, indent=2)
+
+print("COT JSON erzeugt in 'data/cot_data.json'")

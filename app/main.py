@@ -32,25 +32,50 @@ def build_cot_data():
 
     for line in lines:
 
-        if "EXCHANGE" in line and "-" in line:
-            current_market = line.split("-")[0].strip()
+    line = line.strip()
 
-        if line.startswith("All"):
+    # Market erkennen
+    if "EXCHANGE" in line and "-" in line:
+        current_market = line.split("-")[0].strip()
 
-            nums = re.findall(r'\d[\d,]*', line)
-            nums = [int(x.replace(",", "")) for x in nums]
+    # Positionszeile erkennen
+    if line.upper().startswith("ALL"):
 
-            if len(nums) < 11:
-                continue
+        nums = re.findall(r'\d[\d,]*', line)
+        nums = [int(x.replace(",", "")) for x in nums]
 
-            producer = nums[1] - nums[2]
+        if len(nums) < 11:
+            continue
 
-            data.append({
-                "Market": current_market,
-                "Trader_Type": "Producer/Merchant",
-                "Net_Position": producer
-            })
+        producer = nums[1] - nums[2]
+        swap = nums[3] - nums[4]
+        managed = nums[6] - nums[7]
+        other = nums[9] - nums[10]
 
+        data.append({
+            "Market": current_market,
+            "Trader_Type": "Producer/Merchant",
+            "Net_Position": producer
+        })
+
+        data.append({
+            "Market": current_market,
+            "Trader_Type": "Swap Dealers",
+            "Net_Position": swap
+        })
+
+        data.append({
+            "Market": current_market,
+            "Trader_Type": "Managed Money",
+            "Net_Position": managed
+        })
+
+        data.append({
+            "Market": current_market,
+            "Trader_Type": "Other Reportables",
+            "Net_Position": other
+        })
+        
     with open(DATA_FILE, "w") as f:
         json.dump(data, f)
 

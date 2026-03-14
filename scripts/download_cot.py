@@ -1,9 +1,7 @@
 import requests, zipfile, io, os
 
-# Ordner sicherstellen
 os.makedirs("data", exist_ok=True)
 
-# Aktuellstes COT ZIP (Beispiel: Futures Disaggregated)
 url = "https://www.cftc.gov/files/dea/history/fut_disagg_txt_2024.zip"
 
 r = requests.get(url)

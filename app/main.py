@@ -2,21 +2,21 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 import os
-import subprocess
 import json
+import subprocess
 
 app = FastAPI(title="COTInsight API")
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-DATA_PATH = "data/cot_data.json"
+DATA_FILE = "data/cot_data.json"
 
 
 def ensure_data():
-    
-    if not os.path.exists(DATA_PATH):
 
-        print("Keine COT Daten gefunden → lade herunter")
+    if not os.path.exists(DATA_FILE):
+
+        print("Preparing COT data...")
 
         os.makedirs("data", exist_ok=True)
 
@@ -34,25 +34,29 @@ def root():
     return RedirectResponse("/static/index.html")
 
 
-@app.get("/data")
-def get_data():
-    if not os.path.exists(DATA_PATH):
-        return {"error": "no data"}
-
-    with open(DATA_PATH) as f:
-        return json.load(f)
-
-
 @app.get("/assets")
-def assets():
-    return ["WHEAT", "CORN", "SOYBEAN"]
+def get_assets():
+
+    if not os.path.exists(DATA_FILE):
+        return []
+
+    with open(DATA_FILE) as f:
+        data = json.load(f)
+
+    markets = sorted(list(set(d["Market"] for d in data)))
+
+    return markets
 
 
-@app.get("/traders")
-def traders():
-    return [
-        "Producer/Merchant",
-        "Swap Dealers",
-        "Managed Money",
-        "Other Reportables"
-    ]
+@app.get("/data")
+def get_data(asset: str):
+
+    if not os.path.exists(DATA_FILE):
+        return []
+
+    with open(DATA_FILE) as f:
+        data = json.load(f)
+
+    filtered = [d for d in data if asset.lower() in d["Market"].lower()]
+
+    return filtered

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 import os, json
-from scripts import fetch_cot_api  # nur für initiales Laden
+from scripts import fetch_cot_api  
 
 app = FastAPI(title="COTInsight API")
 
@@ -10,11 +10,10 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 DATA_FILE = "data/cot_data.json"
 
-# Startup: falls noch keine Daten vorhanden, lade von Socrata
 @app.on_event("startup")
 def startup():
     if not os.path.exists(DATA_FILE):
-        fetch_cot_api
+        fetch_cot_api.main()
 
 @app.get("/")
 def root():

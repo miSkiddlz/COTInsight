@@ -1,51 +1,24 @@
 import requests
-import os
 import json
+from pathlib import Path
 
-os.makedirs("data", exist_ok=True)
-DATA_FILE = "data/cot_data.json"
+DATA_DIR = Path(__file__).parent.parent / "data"
+DATA_DIR.mkdir(exist_ok=True)
+
+# TFF Futures Only Report (Finanzmärkte)
 API_URL = "https://publicreporting.cftc.gov/resource/gpe5-46if.json"
+OUTPUT_FILE = DATA_DIR / "cot_data.json"
 
 def fetch_cot_data():
     print("Starte Abruf der COT-Daten von Socrata-API...")
-
-    # Nur die benötigten Spalten abrufen
-    params = {
-        "$limit": 1000,
-        "$select": "market_name,trader_category,long_contracts,short_contracts,report_date"
-    }
-
+    params = {"$limit": 5000}  # optional anpassen
     r = requests.get(API_URL, params=params)
     if r.status_code != 200:
         raise Exception(f"API request failed with status {r.status_code}")
-
-    raw_data = r.json()
-    cot_data = []
-
-    for entry in raw_data:
-        market = entry.get("market_name")
-        trader_type = entry.get("trader_category")
-
-        try:
-            long = int(entry.get("long_contracts", 0))
-            short = int(entry.get("short_contracts", 0))
-            net_position = long - short
-        except (ValueError, TypeError):
-            continue
-
-        cot_data.append({
-            "Market": market,
-            "Trader_Type": trader_type,
-            "Long": long,
-            "Short": short,
-            "Net_Position": net_position,
-            "Date": entry.get("report_date")
-        })
-
-    with open(DATA_FILE, "w") as f:
-        json.dump(cot_data, f, indent=2)
-
-    print(f"{len(cot_data)} COT-Datensätze erfolgreich gespeichert in {DATA_FILE}.")
+    data = r.json()
+    with open(OUTPUT_FILE, "w") as f:
+        json.dump(data, f, indent=2)
+    print(f"Daten gespeichert in {OUTPUT_FILE}")
 
 def main():
     fetch_cot_data()

@@ -8,9 +8,11 @@ API_URL = "https://publicreporting.cftc.gov/resource/gpe5-46if.json"
 
 def fetch_cot_data():
     print("Starte Abruf der COT-Daten von Socrata-API...")
+
+    # Nur die benötigten Spalten abrufen
     params = {
-        "$limit": 1000,                # max 1000 Datensätze
-        "$order": "report_date DESC"   # DESC in Großbuchstaben
+        "$limit": 1000,
+        "$select": "market_name,trader_category,long_contracts,short_contracts,report_date"
     }
 
     r = requests.get(API_URL, params=params)
@@ -28,7 +30,7 @@ def fetch_cot_data():
             long = int(entry.get("long_contracts", 0))
             short = int(entry.get("short_contracts", 0))
             net_position = long - short
-        except ValueError:
+        except (ValueError, TypeError):
             continue
 
         cot_data.append({

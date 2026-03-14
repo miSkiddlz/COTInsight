@@ -1,26 +1,25 @@
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pathlib import Path
+import os
 import json
 
 app = FastAPI()
 
-DATA_DIR = Path(__file__).parent.parent / "data"
-STATIC_DIR = Path(__file__).parent / "static"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_FILE = os.path.join(os.path.dirname(BASE_DIR), "data", "cot_data.json")
 
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+# Statische Dateien
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 
-@app.get("/", response_class=HTMLResponse)
-async def index():
-    index_file = STATIC_DIR / "index.html"
-    return index_file.read_text()
+@app.get("/")
+def root():
+    return FileResponse(os.path.join(BASE_DIR, "static", "index.html"))
 
 @app.get("/api/cot_data")
-async def cot_data():
-    data_file = DATA_DIR / "cot_data.json"
-    if not data_file.exists():
-        return JSONResponse({"rows": 0})
-    with open(data_file, "r") as f:
+def get_cot_data():
+    if not os.path.exists(DATA_FILE):
+        return JSONResponse({"error": "Keine Daten gefunden. Bitte lade fetch_cot_api.py einmal ausführen."}, status_code=404)
+    with open(DATA_FILE, "r") as f:
         data = json.load(f)
-    return data
+    return JSONResponse(data)

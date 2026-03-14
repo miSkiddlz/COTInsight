@@ -1,15 +1,19 @@
-import requests, zipfile, io, os
+import requests
+import os
 
 os.makedirs("data", exist_ok=True)
 
-url = "https://www.cftc.gov/files/dea/history/fut_disagg_txt_2024.zip"
+URL = "https://www.cftc.gov/dea/newcot/f_disagg.txt"
+FILE_PATH = "data/cot_latest.txt"
 
-r = requests.get(url)
-z = zipfile.ZipFile(io.BytesIO(r.content))
-z.extractall("data/")
+print("Lade aktuellen COT Report...")
 
-txt_files = [f for f in os.listdir("data") if f.endswith(".txt")]
-if not txt_files:
-    raise FileNotFoundError("Keine TXT-Datei im ZIP gefunden!")
+r = requests.get(URL)
 
-print(f"Gefundene COT Datei: {txt_files[0]}")
+if r.status_code != 200:
+    raise Exception("Download fehlgeschlagen")
+
+with open(FILE_PATH, "wb") as f:
+    f.write(r.content)
+
+print("COT Report gespeichert:", FILE_PATH)

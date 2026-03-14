@@ -1,60 +1,41 @@
-import os
 import re
 import json
+import os
 
 txt_path = "data/cot_latest.txt"
-if not txt_files:
-    raise FileNotFoundError("Keine TXT-Datei im data/ Ordner gefunden!")
 
-txt_path = os.path.join("data", txt_files[0])
-print(f"Verarbeite Datei: {txt_path}")
+if not os.path.exists(txt_path):
+    raise FileNotFoundError("COT Datei fehlt")
 
-# result JSON
-cot_json = {}
+data = []
+current_market = None
 
-current_block = None
-
-with open(txt_path, "r") as f:
+with open(txt_path) as f:
     for line in f:
-        line = line.strip()
-        if not line:
-            continue
 
-        if "Positions" in line and "All" not in line:
-            current_block = "positions"
-            cot_json[current_block] = []
-            continue
-        elif "Changes in Commitments" in line:
-            current_block = "changes"
-            cot_json[current_block] = []
-            continue
-        elif "Percent of Open Interest" in line:
-            current_block = "percent"
-            cot_json[current_block] = []
-            continue
-        elif "Number of Traders" in line:
-            current_block = "traders"
-            cot_json[current_block] = []
-            continue
-        elif "Percent of Open Interest Held" in line:
-            current_block = "largest_traders"
-            cot_json[current_block] = []
-            continue
+        # Markt erkennen
+        if "FUTURES EXCHANGE" in line:
+            current_market = line.split("-")[0].strip()
 
-        m = re.match(r'^(All|Old|Other)\s*:\s*(.*)$', line)
-        if m and current_block:
-            category = m.group(1)
-            rest = m.group(2)
+        # Positions Zeilen
+        if line.startswith("All"):
 
-            numbers = [int(n.replace(",", "")) for n in re.findall(r'\d+', rest)]
+            numbers = [int(x.replace(",", "")) for x in re.findall(r'\d[\d,]*', line)]
 
-            cot_json[current_block].append({
-                "category": category,
-                "values": numbers
-            })
+            if len(numbers) > 6 and current_market:
 
-# JSON save
+                managed_money_long = numbers[5]
+                managed_money_short = numbers[6]
+
+                net = managed_money_long - managed_money_short
+
+                data.append({
+                    "Market": current_market,
+                    "Trader_Type": "Managed Money",
+                    "Net_Position": net
+                })
+
 with open("data/cot_data.json", "w") as f:
-    json.dump(cot_json, f, indent=2)
+    json.dump(data, f)
 
-print("COT JSON erzeugt in 'data/cot_data.json'")
+print("JSON erstellt")

@@ -1,50 +1,55 @@
-const assetSelect = document.getElementById("assetSelect");
-const traderSelect = document.getElementById("traderSelect");
-const chartDiv = document.getElementById("chartDiv");
-
-let cotData = [];
-let assets = [];
-let traders = [];
-
-async function loadData() {
-    const res = await fetch("/api/cot_data");
-    cotData = await res.json();
-
-    if(cotData.rows === 0) {
-        chartDiv.innerHTML = "Keine Daten verfügbar";
-        return;
-    }
-
-    // alle Assets extrahieren
-    assets = [...new Set(cotData.map(d => d.commodity_name))];
-    assets.sort();
-    assetSelect.innerHTML = assets.map(a => `<option value="${a}">${a}</option>`).join("");
-
-    // alle Trader-Gruppen extrahieren
-    traders = Object.keys(cotData[0]).filter(k => k.includes("open_interest"));
-    traderSelect.innerHTML = traders.map(t => `<option value="${t}">${t}</option>`).join("");
-
-    updateChart();
+async function loadCOTData() {
+    const res = await fetch('/api/cot_data');
+    const data = await res.json();
+    return data;
 }
 
-function updateChart() {
-    const asset = assetSelect.value;
-    const trader = traderSelect.value;
+function populateDropdowns(data) {
+    const assetSelect = document.getElementById("assetSelect");
+    const assets = [...new Set(data.map(d => d.market_and_exchange_names))].sort();
+    assets.forEach(a => {
+        const option = document.createElement("option");
+        option.value = a;
+        option.textContent = a;
+        assetSelect.appendChild(option);
+    });
+}
 
-    const filtered = cotData.filter(d => d.commodity_name === asset);
+function plotData(data, asset, trader) {
+    const filtered = data.filter(d => d.market_and_exchange_names === asset);
+    const dates = filtered.map(d => d.report_date_as_yyyymmdd);
+    const values = filtered.map(d => {
+        if (trader === "commercial") return Number(d.commercial_positions_long_all) - Number(d.commercial_positions_short_all);
+        else return Number(d.noncommercial_positions_long_all) - Number(d.noncommercial_positions_short_all);
+    });
 
     const trace = {
-        x: filtered.map(d => d.report_date),
-        y: filtered.map(d => +d[trader] || 0),
+        x: dates,
+        y: values,
         type: 'scatter',
         mode: 'lines+markers',
         name: trader
     };
 
-    Plotly.newPlot(chartDiv, [trace], {title: `${asset} - ${trader}`});
+    Plotly.newPlot('chartDiv', [trace]);
 }
 
-assetSelect.addEventListener("change", updateChart);
-traderSelect.addEventListener("change", updateChart);
+document.addEventListener("DOMContentLoaded", async () => {
+    const data = await loadCOTData();
+    if (!data || data.length === 0) return;
 
-loadData();
+    populateDropdowns(data);
+
+    const assetSelect = document.getElementById("assetSelect");
+    const traderSelect = document.getElementById("traderSelect");
+
+    function updatePlot() {
+        plotData(data, assetSelect.value, traderSelect.value);
+    }
+
+    assetSelect.addEventListener("change", updatePlot);
+    traderSelect.addEventListener("change", updatePlot);
+
+    assetSelect.selectedIndex = 0;
+    updatePlot();
+});

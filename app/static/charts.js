@@ -1,26 +1,50 @@
-// charts.js (angepasst)
-async function loadChart() {
-    const asset = assetSelect.value;
-    const res = await fetch(`/data?asset=${asset}`);
-    const data = await res.json();
+const assetSelect = document.getElementById("assetSelect");
+const traderSelect = document.getElementById("traderSelect");
+const chartDiv = document.getElementById("chartDiv");
 
-    if (data.length === 0) {
-        chartDiv.innerHTML = 'No data found for this selection.';
+let cotData = [];
+let assets = [];
+let traders = [];
+
+async function loadData() {
+    const res = await fetch("/api/cot_data");
+    cotData = await res.json();
+
+    if(cotData.rows === 0) {
+        chartDiv.innerHTML = "Keine Daten verfügbar";
         return;
     }
 
-    const traces = [];
-    const traderGroups = [...new Set(data.map(d => d.Trader_Type))];
+    // alle Assets extrahieren
+    assets = [...new Set(cotData.map(d => d.commodity_name))];
+    assets.sort();
+    assetSelect.innerHTML = assets.map(a => `<option value="${a}">${a}</option>`).join("");
 
-    traderGroups.forEach(trader => {
-        const traderData = data.filter(d => d.Trader_Type === trader);
-        traces.push({
-            x: traderData.map(d => d.Date),
-            y: traderData.map(d => d.Net_Position),
-            type: 'scatter',
-            name: trader
-        });
-    });
+    // alle Trader-Gruppen extrahieren
+    traders = Object.keys(cotData[0]).filter(k => k.includes("open_interest"));
+    traderSelect.innerHTML = traders.map(t => `<option value="${t}">${t}</option>`).join("");
 
-    Plotly.newPlot(chartDiv, traces, {title: `${asset} - Net Positions`});
+    updateChart();
 }
+
+function updateChart() {
+    const asset = assetSelect.value;
+    const trader = traderSelect.value;
+
+    const filtered = cotData.filter(d => d.commodity_name === asset);
+
+    const trace = {
+        x: filtered.map(d => d.report_date),
+        y: filtered.map(d => +d[trader] || 0),
+        type: 'scatter',
+        mode: 'lines+markers',
+        name: trader
+    };
+
+    Plotly.newPlot(chartDiv, [trace], {title: `${asset} - ${trader}`});
+}
+
+assetSelect.addEventListener("change", updateChart);
+traderSelect.addEventListener("change", updateChart);
+
+loadData();

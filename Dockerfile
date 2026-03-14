@@ -18,7 +18,6 @@ COPY requirements.txt .
 COPY main.py .
 COPY scripts/ ./scripts
 COPY static/ ./static
-COPY templates/ ./templates
 
 # Installiere Python-Abhängigkeiten
 RUN pip install --no-cache-dir -r requirements.txt

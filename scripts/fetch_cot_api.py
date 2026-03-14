@@ -3,21 +3,14 @@ import os
 import json
 
 os.makedirs("data", exist_ok=True)
-
 DATA_FILE = "data/cot_data.json"
-
-# Socrata API URL for Disaggregated Futures Only COT-Daten
 API_URL = "https://publicreporting.cftc.gov/resource/gpe5-46if.json"
 
 def fetch_cot_data():
-    """
-    Holt die neuesten COT-Daten von der Socrata-API
-    und speichert sie als JSON in data/cot_data.json.
-    """
     print("Starte Abruf der COT-Daten von Socrata-API...")
     params = {
-        "$order": "report_date desc",
-        "$limit": 5000  
+        "$limit": 1000,                # max 1000 Datensätze
+        "$order": "report_date DESC"   # DESC in Großbuchstaben
     }
 
     r = requests.get(API_URL, params=params)
@@ -36,7 +29,7 @@ def fetch_cot_data():
             short = int(entry.get("short_contracts", 0))
             net_position = long - short
         except ValueError:
-            continue  
+            continue
 
         cot_data.append({
             "Market": market,
@@ -47,7 +40,6 @@ def fetch_cot_data():
             "Date": entry.get("report_date")
         })
 
-    # Save as JSON
     with open(DATA_FILE, "w") as f:
         json.dump(cot_data, f, indent=2)
 

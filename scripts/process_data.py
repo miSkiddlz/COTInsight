@@ -2,7 +2,7 @@ import os
 import re
 import json
 
-txt_files = [f for f in os.listdir("data") if f.endswith(".txt")]
+txt_path = "data/cot_latest.txt"
 if not txt_files:
     raise FileNotFoundError("Keine TXT-Datei im data/ Ordner gefunden!")
 

@@ -15,8 +15,6 @@ DATA_FILE = "data/cot_data.json"
 
 def build_cot_data():
 
-    print("Downloading COT report...")
-
     os.makedirs("data", exist_ok=True)
 
     url = "https://www.cftc.gov/dea/newcot/f_disagg.txt"
@@ -24,8 +22,7 @@ def build_cot_data():
     r = requests.get(url)
 
     if r.status_code != 200:
-        print("Download failed")
-        return
+        return {"error": "download failed"}
 
     lines = r.text.splitlines()
 
@@ -35,25 +32,18 @@ def build_cot_data():
 
     for line in lines:
 
-        # Market erkennen
-        if "FUTURES EXCHANGE" in line:
-
+        if "EXCHANGE" in line and "-" in line:
             current_market = line.split("-")[0].strip()
 
-        # Positions erkennen
         if line.startswith("All"):
 
             nums = re.findall(r'\d[\d,]*', line)
-
             nums = [int(x.replace(",", "")) for x in nums]
 
             if len(nums) < 11:
                 continue
 
             producer = nums[1] - nums[2]
-            swap = nums[3] - nums[4]
-            managed = nums[6] - nums[7]
-            other = nums[9] - nums[10]
 
             data.append({
                 "Market": current_market,
@@ -61,41 +51,21 @@ def build_cot_data():
                 "Net_Position": producer
             })
 
-            data.append({
-                "Market": current_market,
-                "Trader_Type": "Swap Dealers",
-                "Net_Position": swap
-            })
-
-            data.append({
-                "Market": current_market,
-                "Trader_Type": "Managed Money",
-                "Net_Position": managed
-            })
-
-            data.append({
-                "Market": current_market,
-                "Trader_Type": "Other Reportables",
-                "Net_Position": other
-            })
-
     with open(DATA_FILE, "w") as f:
         json.dump(data, f)
 
-    print("Markets parsed:", len(data))
-
-
-@app.on_event("startup")
-def startup():
-
-    if not os.path.exists(DATA_FILE):
-
-        build_cot_data()
+    return {"rows": len(data)}
 
 
 @app.get("/")
 def root():
     return RedirectResponse("/static/index.html")
+
+
+# 🔥 DEBUG ENDPOINT
+@app.get("/debug-build")
+def debug_build():
+    return build_cot_data()
 
 
 @app.get("/assets")
@@ -121,6 +91,4 @@ def get_data(asset: str):
     with open(DATA_FILE) as f:
         data = json.load(f)
 
-    filtered = [d for d in data if asset.lower() in d["Market"].lower()]
-
-    return filtered
+    return [d for d in data if asset.lower() in d["Market"].lower()]

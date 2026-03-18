@@ -6,9 +6,7 @@ from cot_reports import cot_year
 
 # ========== CONFIG ==========
 YEARS_BACK = 3
-
-# Optional: nur wichtige Märkte (empfohlen für Performance)
-FILTER_MARKETS = ["GOLD", "S&P"]  # kannst du erweitern
+FILTER_MARKETS = ["GOLD", "S&P"]  # optional, kannst du erweitern oder leer lassen
 
 # ========== PATHS ==========
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -43,41 +41,45 @@ df = pd.concat(dfs)
 # ========== CLEAN DATA ==========
 print("Verarbeite Daten...")
 
-# Spaltennamen debuggen
-print("Spalten im DataFrame:")
+# Debug: echte Spalten anzeigen
+print("Gefundene Spalten:")
 print(df.columns.tolist())
 
-# Richtige Datumsspalte finden
-date_col = None
-for col in df.columns:
-    if "date" in col.lower():
-        date_col = col
-        break
-
-if not date_col:
-    raise Exception("Keine Datumsspalte gefunden!")
-
-print(f"Verwende Datumsspalte: {date_col}")
-
-df["report_date_as_yyyymmdd"] = pd.to_datetime(
-    df[date_col]
-).dt.strftime("%Y-%m-%d")
-
-# Spalten umbenennen (wichtig fürs Frontend)
+# KORREKTE Spaltennamen (für legacy_fut)
 df = df.rename(columns={
-    "Market_and_Exchange_Names": "market_and_exchange_names",
-    "Commercial_Positions_Long_All": "commercial_positions_long_all",
-    "Commercial_Positions_Short_All": "commercial_positions_short_all",
-    "Noncommercial_Positions_Long_All": "noncommercial_positions_long_all",
-    "Noncommercial_Positions_Short_All": "noncommercial_positions_short_all"
+    "Market and Exchange Names": "market_and_exchange_names",
+    "Report Date as YYYY-MM-DD": "report_date",
+    "Commercial Positions-Long (All)": "commercial_positions_long_all",
+    "Commercial Positions-Short (All)": "commercial_positions_short_all",
+    "Noncommercial Positions-Long (All)": "noncommercial_positions_long_all",
+    "Noncommercial Positions-Short (All)": "noncommercial_positions_short_all"
 })
 
-# ========== OPTIONAL: FILTER ==========
+# Prüfen ob wichtige Spalten existieren
+required_cols = [
+    "market_and_exchange_names",
+    "report_date",
+    "commercial_positions_long_all",
+    "commercial_positions_short_all",
+    "noncommercial_positions_long_all",
+    "noncommercial_positions_short_all"
+]
+
+missing = [col for col in required_cols if col not in df.columns]
+if missing:
+    raise Exception(f"Fehlende Spalten: {missing}")
+
+# Datum formatieren
+df["report_date_as_yyyymmdd"] = pd.to_datetime(
+    df["report_date"]
+).dt.strftime("%Y-%m-%d")
+
+# ========== FILTER ==========
 if FILTER_MARKETS:
     print("Filtere Märkte...")
-    df = df[df["market_and_exchange_names"].str.contains("|".join(FILTER_MARKETS))]
+    df = df[df["market_and_exchange_names"].str.contains("|".join(FILTER_MARKETS), na=False)]
 
-# ========== KEEP ONLY NEEDED COLUMNS ==========
+# ========== FINAL COLUMNS ==========
 df = df[
     [
         "market_and_exchange_names",
@@ -89,7 +91,11 @@ df = df[
     ]
 ]
 
-# NaN entfernen
+# Zahlen fixen
+for col in df.columns:
+    if "positions" in col:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
 df = df.fillna(0)
 
 # ========== SAVE ==========

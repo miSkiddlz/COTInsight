@@ -43,9 +43,24 @@ df = pd.concat(dfs)
 # ========== CLEAN DATA ==========
 print("Verarbeite Daten...")
 
-# Datum formatieren
+# Spaltennamen debuggen
+print("Spalten im DataFrame:")
+print(df.columns.tolist())
+
+# Richtige Datumsspalte finden
+date_col = None
+for col in df.columns:
+    if "date" in col.lower():
+        date_col = col
+        break
+
+if not date_col:
+    raise Exception("Keine Datumsspalte gefunden!")
+
+print(f"Verwende Datumsspalte: {date_col}")
+
 df["report_date_as_yyyymmdd"] = pd.to_datetime(
-    df["Report_Date_as_YYYYMMDD"]
+    df[date_col]
 ).dt.strftime("%Y-%m-%d")
 
 # Spalten umbenennen (wichtig fürs Frontend)

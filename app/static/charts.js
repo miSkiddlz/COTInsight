@@ -19,13 +19,7 @@ function populateDropdowns(data) {
     assets.forEach(a => {
         const option = document.createElement("option");
         option.value = a;
-        let cleanName = a;
-for (const key in nameMap) {
-    if (a.includes(key)) {
-        cleanName = nameMap[key];
-    }
-}
-option.textContent = cleanName;
+        option.textContent = a;
         assetSelect.appendChild(option);
     });
 }

@@ -35,20 +35,15 @@ h1 {
     margin-bottom: 20px;
 }
 
-label {
-    margin-right: 10px;
-}
-
 select {
     padding: 8px 12px;
     border-radius: 8px;
     border: none;
     background: #1e293b;
     color: white;
-    font-size: 14px;
-    outline: none;
 }
 
+/* KPI */
 .kpi-row {
     display: flex;
     gap: 15px;
@@ -60,12 +55,6 @@ select {
     background: #111827;
     padding: 15px;
     border-radius: 12px;
-    transition: 0.2s;
-}
-
-.kpi:hover {
-    transform: translateY(-2px);
-    background: #1f2937;
 }
 
 .kpi-title {
@@ -73,18 +62,30 @@ select {
     color: #9ca3af;
 }
 
+.kpi-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .kpi-value {
     font-size: 20px;
     font-weight: bold;
 }
 
+.kpi-change {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+/* Chart */
 .card {
     background: #111827;
     padding: 20px;
     border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 }
 
+/* Footer */
 .footer-bar {
     margin-top: 20px;
     padding: 15px;
@@ -99,10 +100,6 @@ select {
 .footer-bar a {
     color: #3b82f6;
     text-decoration: none;
-}
-
-.footer-bar a:hover {
-    text-decoration: underline;
 }
 </style>
 
@@ -120,27 +117,41 @@ select {
         <select id="assetSelect"></select>
     </div>
 
+    <!-- KPI -->
     <div class="kpi-row">
+
         <div class="kpi">
             <div class="kpi-title">Commercials</div>
-            <div class="kpi-value" id="kpiComm">-</div>
+            <div class="kpi-main">
+                <div class="kpi-value" id="kpiComm">-</div>
+                <div class="kpi-change" id="kpiCommChange"></div>
+            </div>
         </div>
 
         <div class="kpi">
             <div class="kpi-title">Non-Commercials</div>
-            <div class="kpi-value" id="kpiNonComm">-</div>
+            <div class="kpi-main">
+                <div class="kpi-value" id="kpiNonComm">-</div>
+                <div class="kpi-change" id="kpiNonCommChange"></div>
+            </div>
         </div>
 
         <div class="kpi">
             <div class="kpi-title">Retail</div>
-            <div class="kpi-value" id="kpiRetail">-</div>
+            <div class="kpi-main">
+                <div class="kpi-value" id="kpiRetail">-</div>
+                <div class="kpi-change" id="kpiRetailChange"></div>
+            </div>
         </div>
+
     </div>
 
+    <!-- Chart -->
     <div class="card">
         <div id="chartDiv" style="width:100%;height:600px;"></div>
     </div>
 
+    <!-- Footer -->
     <div class="footer-bar">
         <a href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm" target="_blank">
             Latest COT Report

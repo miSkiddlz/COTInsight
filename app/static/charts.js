@@ -21,9 +21,31 @@ function getReadableName(rawName) {
     return rawName;
 }
 
+function formatKPI(value) {
+    const sign = value > 0 ? "+" : "";
+    return sign + "$" + value.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+function formatChange(value) {
+    const arrow = value > 0 ? "↑" : value < 0 ? "↓" : "";
+    const sign = value > 0 ? "+" : "";
+    return `${arrow} ${sign}$${value.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
+}
+
+function applyColor(element, value) {
+    if (value > 0) element.style.color = "#22c55e";
+    else if (value < 0) element.style.color = "#ef4444";
+    else element.style.color = "#e5e7eb";
+}
+
 function populateDropdowns(data) {
     const assetSelect = document.getElementById("assetSelect");
-
     const assets = [...new Set(data.map(d => d.market_and_exchange_names))].sort();
 
     assets.forEach(a => {
@@ -52,85 +74,62 @@ function plotData(data, asset) {
     );
 
     const traces = [
-        {
-            x: dates,
-            y: commercial,
-            type: 'scatter',
-            mode: 'lines',
-            name: 'Comm',
-            line: { color: '#3b82f6', width: 2 }
-        },
-        {
-            x: dates,
-            y: noncommercial,
-            type: 'scatter',
-            mode: 'lines',
-            name: 'Non-Comm',
-            line: { color: '#f97316', width: 2 }
-        },
-        {
-            x: dates,
-            y: nonreportable,
-            type: 'scatter',
-            mode: 'lines',
-            name: 'Retail',
-            line: { color: '#22c55e', width: 2 }
-        }
+        { x: dates, y: commercial, type: 'scatter', mode: 'lines', name: 'Comm', line: { color: '#3b82f6' } },
+        { x: dates, y: noncommercial, type: 'scatter', mode: 'lines', name: 'Non-Comm', line: { color: '#f97316' } },
+        { x: dates, y: nonreportable, type: 'scatter', mode: 'lines', name: 'Retail', line: { color: '#22c55e' } }
     ];
 
-    const layout = {
-        title: {
-            text: getReadableName(asset) + " - COT Net Positions",
-            font: { size: 20 }
-        },
-
+    Plotly.newPlot('chartDiv', traces, {
         paper_bgcolor: '#111827',
         plot_bgcolor: '#111827',
         font: { color: '#e5e7eb' },
-
-        xaxis: {
-            title: 'Date',
-            gridcolor: '#374151',
-            zerolinecolor: '#374151',
-
-            rangeselector: {
-                bgcolor: '#1e293b',
-                activecolor: '#374151',
-                font: { color: '#e5e7eb' },
-                buttons: [
-                    { count: 3, step: 'month', stepmode: 'backward', label: '3m' },
-                    { count: 6, step: 'month', stepmode: 'backward', label: '6m' },
-                    { count: 1, step: 'year', stepmode: 'backward', label: '1y' },
-                    { step: 'all', label: 'All' }
-                ]
-            }
-        },
-
-        yaxis: {
-            title: 'Net Position',
-            gridcolor: '#374151',
-            zeroline: true,
-            zerolinecolor: '#9ca3af',
-            zerolinewidth: 2
-        },
-
-        legend: {
-            orientation: 'h',
-            y: -0.2
-        },
-
         hovermode: 'x unified'
+    });
+
+    // KPI LOGIC
+    const last = filtered.length - 1;
+    const prev = filtered.length - 2;
+
+    const values = {
+        comm: commercial[last],
+        nonComm: noncommercial[last],
+        retail: nonreportable[last]
     };
 
-    const lastIndex = filtered.length - 1;
+    const changes = {
+        comm: commercial[last] - commercial[prev],
+        nonComm: noncommercial[last] - noncommercial[prev],
+        retail: nonreportable[last] - nonreportable[prev]
+    };
 
-document.getElementById("kpiComm").textContent = commercial[lastIndex];
-document.getElementById("kpiNonComm").textContent = noncommercial[lastIndex];
-document.getElementById("kpiRetail").textContent = nonreportable[lastIndex];
+    // Elements
+    const commEl = document.getElementById("kpiComm");
+    const nonCommEl = document.getElementById("kpiNonComm");
+    const retailEl = document.getElementById("kpiRetail");
 
-document.getElementById("lastUpdate").textContent = dates[lastIndex];
-    
-    Plotly.newPlot('chartDiv', traces, layout, { responsive: true });
+    const commChEl = document.getElementById("kpiCommChange");
+    const nonCommChEl = document.getElementById("kpiNonCommChange");
+    const retailChEl = document.getElementById("kpiRetailChange");
+
+    // Set values
+    commEl.textContent = formatKPI(values.comm);
+    nonCommEl.textContent = formatKPI(values.nonComm);
+    retailEl.textContent = formatKPI(values.retail);
+
+    commChEl.textContent = formatChange(changes.comm);
+    nonCommChEl.textContent = formatChange(changes.nonComm);
+    retailChEl.textContent = formatChange(changes.retail);
+
+    // Colors
+    applyColor(commEl, values.comm);
+    applyColor(nonCommEl, values.nonComm);
+    applyColor(retailEl, values.retail);
+
+    applyColor(commChEl, changes.comm);
+    applyColor(nonCommChEl, changes.nonComm);
+    applyColor(retailChEl, changes.retail);
+
+    document.getElementById("lastUpdate").textContent = dates[last];
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

@@ -1,27 +1,46 @@
 import os
 import json
 import pandas as pd
+from datetime import date
 from cot_reports import cot_year
 
-years = [2022, 2023, 2024]
+# ========== CONFIG ==========
+YEARS_BACK = 3
 
-# Ordnerstruktur
+# Optional: nur wichtige Märkte (empfohlen für Performance)
+FILTER_MARKETS = ["GOLD", "S&P"]  # kannst du erweitern
+
+# ========== PATHS ==========
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 
 OUTPUT_FILE = os.path.join(DATA_DIR, "cot_data.json")
 
+# ========== LOAD DATA ==========
 print("Lade COT Daten...")
 
-# WICHTIG: Legacy passt zu deinem Frontend
+current_year = date.today().year
+years = [current_year - i for i in range(YEARS_BACK)]
+
 dfs = []
+
 for y in years:
-    dfs.append(cot_year(y, "legacy_fut", store_txt=False))
+    print(f"Lade Jahr: {y}")
+    try:
+        df_year = cot_year(
+            year=y,
+            cot_report_type="legacy_fut",
+            store_txt=False,
+            verbose=False
+        )
+        dfs.append(df_year)
+    except Exception as e:
+        print(f"Fehler bei Jahr {y}: {e}")
 
 df = pd.concat(dfs)
 
-
+# ========== CLEAN DATA ==========
 print("Verarbeite Daten...")
 
 # Datum formatieren
@@ -29,7 +48,7 @@ df["report_date_as_yyyymmdd"] = pd.to_datetime(
     df["Report_Date_as_YYYYMMDD"]
 ).dt.strftime("%Y-%m-%d")
 
-# Spalten vereinheitlichen
+# Spalten umbenennen (wichtig fürs Frontend)
 df = df.rename(columns={
     "Market_and_Exchange_Names": "market_and_exchange_names",
     "Commercial_Positions_Long_All": "commercial_positions_long_all",
@@ -38,7 +57,12 @@ df = df.rename(columns={
     "Noncommercial_Positions_Short_All": "noncommercial_positions_short_all"
 })
 
-# Nur benötigte Spalten
+# ========== OPTIONAL: FILTER ==========
+if FILTER_MARKETS:
+    print("Filtere Märkte...")
+    df = df[df["market_and_exchange_names"].str.contains("|".join(FILTER_MARKETS))]
+
+# ========== KEEP ONLY NEEDED COLUMNS ==========
 df = df[
     [
         "market_and_exchange_names",
@@ -53,8 +77,9 @@ df = df[
 # NaN entfernen
 df = df.fillna(0)
 
+# ========== SAVE ==========
 print("Speichere JSON...")
 
 df.to_json(OUTPUT_FILE, orient="records")
 
-print("Fertig:", OUTPUT_FILE)
+print(f"Fertig: {OUTPUT_FILE}")

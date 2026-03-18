@@ -1,3 +1,12 @@
+const nameMap = {
+    "E-MINI S&P 500": "S&P 500",
+    "MICRO E-MINI S&P 500": "S&P 500 (Micro)",
+    "GOLD": "Gold",
+    "CRUDE OIL": "Oil",
+    "EURO FX": "EUR/USD",
+    "NASDAQ": "Nasdaq"
+};
+
 async function loadCOTData() {
     const res = await fetch('/api/cot_data');
     const data = await res.json();

@@ -122,6 +122,14 @@ function plotData(data, asset) {
         hovermode: 'x unified'
     };
 
+    const lastIndex = filtered.length - 1;
+
+document.getElementById("kpiComm").textContent = commercial[lastIndex];
+document.getElementById("kpiNonComm").textContent = noncommercial[lastIndex];
+document.getElementById("kpiRetail").textContent = nonreportable[lastIndex];
+
+document.getElementById("lastUpdate").textContent = dates[lastIndex];
+    
     Plotly.newPlot('chartDiv', traces, layout, { responsive: true });
 }
 

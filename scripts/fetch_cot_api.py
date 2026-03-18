@@ -7,7 +7,6 @@ from cot_reports import cot_year
 # ========== CONFIG ==========
 YEARS_BACK = 3
 
-# 🔥 NUR DIE WICHTIGSTEN MÄRKTE
 FILTER_MARKETS = [
     "S&P 500",
     "GOLD",
@@ -49,23 +48,30 @@ df = pd.concat(dfs)
 # ========== CLEAN DATA ==========
 print("Verarbeite Daten...")
 
-# 🔥 Nur wichtige Spalten behalten (Originalnamen!)
 df = df[[
     "Market and Exchange Names",
+    "As of Date in Form YYYY-MM-DD",
     "Commercial Positions-Long (All)",
     "Commercial Positions-Short (All)",
     "Noncommercial Positions-Long (All)",
-    "Noncommercial Positions-Short (All)"
+    "Noncommercial Positions-Short (All)",
+    "Nonreportable Positions-Long (All)",
+    "Nonreportable Positions-Short (All)"
 ]]
 
-# Umbenennen für dein Frontend
 df = df.rename(columns={
     "Market and Exchange Names": "market_and_exchange_names",
+    "As of Date in Form YYYY-MM-DD": "report_date_as_yyyymmdd",
     "Commercial Positions-Long (All)": "commercial_positions_long_all",
     "Commercial Positions-Short (All)": "commercial_positions_short_all",
     "Noncommercial Positions-Long (All)": "noncommercial_positions_long_all",
-    "Noncommercial Positions-Short (All)": "noncommercial_positions_short_all"
+    "Noncommercial Positions-Short (All)": "noncommercial_positions_short_all",
+    "Nonreportable Positions-Long (All)": "nonreportable_positions_long_all",
+    "Nonreportable Positions-Short (All)": "nonreportable_positions_short_all"
 })
+
+# Datum fixen
+df["report_date_as_yyyymmdd"] = pd.to_datetime(df["report_date_as_yyyymmdd"])
 
 # ========== FILTER ==========
 print("Filtere Märkte...")
@@ -77,9 +83,6 @@ df = df[
     )
 ]
 
-# Dummy Datum (damit dein Chart nicht kaputt geht)
-df["report_date_as_yyyymmdd"] = range(len(df))
-
 # Zahlen fixen
 for col in df.columns:
     if "positions" in col:
@@ -87,9 +90,12 @@ for col in df.columns:
 
 df = df.fillna(0)
 
+# Sortieren (wichtig für Plot!)
+df = df.sort_values("report_date_as_yyyymmdd")
+
 # ========== SAVE ==========
 print("Speichere JSON...")
 
-df.to_json(OUTPUT_FILE, orient="records")
+df.to_json(OUTPUT_FILE, orient="records", date_format="iso")
 
 print(f"Fertig: {OUTPUT_FILE}")

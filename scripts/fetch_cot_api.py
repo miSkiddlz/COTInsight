@@ -1,7 +1,9 @@
 import os
 import json
 import pandas as pd
-from cot_reports import cot_all
+from cot_reports import cot_year
+
+years = [2022, 2023, 2024]
 
 # Ordnerstruktur
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -13,7 +15,12 @@ OUTPUT_FILE = os.path.join(DATA_DIR, "cot_data.json")
 print("Lade COT Daten...")
 
 # WICHTIG: Legacy passt zu deinem Frontend
-df = cot_all(cot_report_type="legacy_fut", store_txt=False, verbose=True)
+dfs = []
+for y in years:
+    dfs.append(cot_year(y, "legacy_fut", store_txt=False))
+
+df = pd.concat(dfs)
+
 
 print("Verarbeite Daten...")
 

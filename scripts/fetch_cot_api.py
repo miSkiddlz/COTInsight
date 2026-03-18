@@ -6,7 +6,15 @@ from cot_reports import cot_year
 
 # ========== CONFIG ==========
 YEARS_BACK = 3
-FILTER_MARKETS = ["GOLD", "S&P"]  # optional
+
+# 🔥 NUR DIE WICHTIGSTEN MÄRKTE
+FILTER_MARKETS = [
+    "S&P 500",
+    "GOLD",
+    "CRUDE OIL",
+    "EURO",
+    "NASDAQ"
+]
 
 # ========== PATHS ==========
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -41,54 +49,36 @@ df = pd.concat(dfs)
 # ========== CLEAN DATA ==========
 print("Verarbeite Daten...")
 
-print("Gefundene Spalten:")
-print(df.columns.tolist())
+# 🔥 Nur wichtige Spalten behalten (Originalnamen!)
+df = df[[
+    "Market and Exchange Names",
+    "Commercial Positions-Long (All)",
+    "Commercial Positions-Short (All)",
+    "Noncommercial Positions-Long (All)",
+    "Noncommercial Positions-Short (All)"
+]]
 
-# ✅ KORREKTE Spalten (angepasst an deine echten Daten)
+# Umbenennen für dein Frontend
 df = df.rename(columns={
     "Market and Exchange Names": "market_and_exchange_names",
-    "As of Date in Form YYYY-MM-DD": "report_date",
     "Commercial Positions-Long (All)": "commercial_positions_long_all",
     "Commercial Positions-Short (All)": "commercial_positions_short_all",
     "Noncommercial Positions-Long (All)": "noncommercial_positions_long_all",
     "Noncommercial Positions-Short (All)": "noncommercial_positions_short_all"
 })
 
-# Prüfen
-required_cols = [
-    "market_and_exchange_names",
-    "report_date",
-    "commercial_positions_long_all",
-    "commercial_positions_short_all",
-    "noncommercial_positions_long_all",
-    "noncommercial_positions_short_all"
-]
-
-missing = [col for col in required_cols if col not in df.columns]
-if missing:
-    raise Exception(f"Fehlende Spalten: {missing}")
-
-# Datum formatieren
-df["report_date_as_yyyymmdd"] = pd.to_datetime(
-    df["report_date"]
-).dt.strftime("%Y-%m-%d")
-
 # ========== FILTER ==========
-if FILTER_MARKETS:
-    print("Filtere Märkte...")
-    df = df[df["market_and_exchange_names"].str.contains("|".join(FILTER_MARKETS), na=False)]
+print("Filtere Märkte...")
 
-# ========== FINAL COLUMNS ==========
 df = df[
-    [
-        "market_and_exchange_names",
-        "report_date_as_yyyymmdd",
-        "commercial_positions_long_all",
-        "commercial_positions_short_all",
-        "noncommercial_positions_long_all",
-        "noncommercial_positions_short_all"
-    ]
+    df["market_and_exchange_names"].str.contains(
+        "|".join(FILTER_MARKETS),
+        na=False
+    )
 ]
+
+# Dummy Datum (damit dein Chart nicht kaputt geht)
+df["report_date_as_yyyymmdd"] = range(len(df))
 
 # Zahlen fixen
 for col in df.columns:

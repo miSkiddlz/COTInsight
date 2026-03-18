@@ -57,7 +57,7 @@ function plotData(data, asset) {
             y: commercial,
             type: 'scatter',
             mode: 'lines',
-            name: 'Commercials',
+            name: 'Comm',
             line: { color: '#3b82f6', width: 2 }
         },
         {
@@ -65,7 +65,7 @@ function plotData(data, asset) {
             y: noncommercial,
             type: 'scatter',
             mode: 'lines',
-            name: 'Non-Commercials',
+            name: 'Non-Comm',
             line: { color: '#f97316', width: 2 }
         },
         {
@@ -73,7 +73,7 @@ function plotData(data, asset) {
             y: nonreportable,
             type: 'scatter',
             mode: 'lines',
-            name: 'Retail (Nonreportable)',
+            name: 'Retail',
             line: { color: '#22c55e', width: 2 }
         }
     ];
@@ -94,6 +94,9 @@ function plotData(data, asset) {
             zerolinecolor: '#374151',
 
             rangeselector: {
+                bgcolor: '#1e293b',
+                activecolor: '#374151',
+                font: { color: '#e5e7eb' },
                 buttons: [
                     { count: 3, step: 'month', stepmode: 'backward', label: '3m' },
                     { count: 6, step: 'month', stepmode: 'backward', label: '6m' },
@@ -106,7 +109,9 @@ function plotData(data, asset) {
         yaxis: {
             title: 'Net Position',
             gridcolor: '#374151',
-            zerolinecolor: '#374151'
+            zeroline: true,
+            zerolinecolor: '#9ca3af',
+            zerolinewidth: 2
         },
 
         legend: {

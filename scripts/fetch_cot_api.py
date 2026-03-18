@@ -6,7 +6,7 @@ from cot_reports import cot_year
 
 # ========== CONFIG ==========
 YEARS_BACK = 3
-FILTER_MARKETS = ["GOLD", "S&P"]  # optional, kannst du erweitern oder leer lassen
+FILTER_MARKETS = ["GOLD", "S&P"]  # optional
 
 # ========== PATHS ==========
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -41,21 +41,20 @@ df = pd.concat(dfs)
 # ========== CLEAN DATA ==========
 print("Verarbeite Daten...")
 
-# Debug: echte Spalten anzeigen
 print("Gefundene Spalten:")
 print(df.columns.tolist())
 
-# KORREKTE Spaltennamen (für legacy_fut)
+# ✅ KORREKTE Spalten (angepasst an deine echten Daten)
 df = df.rename(columns={
     "Market and Exchange Names": "market_and_exchange_names",
-    "Report Date as YYYY-MM-DD": "report_date",
+    "As of Date in Form YYYY-MM-DD": "report_date",
     "Commercial Positions-Long (All)": "commercial_positions_long_all",
     "Commercial Positions-Short (All)": "commercial_positions_short_all",
     "Noncommercial Positions-Long (All)": "noncommercial_positions_long_all",
     "Noncommercial Positions-Short (All)": "noncommercial_positions_short_all"
 })
 
-# Prüfen ob wichtige Spalten existieren
+# Prüfen
 required_cols = [
     "market_and_exchange_names",
     "report_date",

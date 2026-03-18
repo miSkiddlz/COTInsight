@@ -1,7 +1,7 @@
 import os
 import json
 import pandas as pd
-from scripts.cot_reports import cot_all
+from cot_reports import cot_all
 
 # Ordnerstruktur
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

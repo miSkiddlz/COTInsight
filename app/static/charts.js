@@ -4,7 +4,6 @@ async function loadCOTData() {
     return data;
 }
 
-// 🔥 Mapping für verständliche Namen
 const MARKET_LABELS = {
     "S&P 500": "S&P 500",
     "NASDAQ": "Nasdaq",
@@ -58,29 +57,67 @@ function plotData(data, asset) {
             y: commercial,
             type: 'scatter',
             mode: 'lines',
-            name: 'Commercials'
+            name: 'Commercials',
+            line: { color: '#3b82f6', width: 2 }
         },
         {
             x: dates,
             y: noncommercial,
             type: 'scatter',
             mode: 'lines',
-            name: 'Non-Commercials'
+            name: 'Non-Commercials',
+            line: { color: '#f97316', width: 2 }
         },
         {
             x: dates,
             y: nonreportable,
             type: 'scatter',
             mode: 'lines',
-            name: 'Retail (Nonreportable)'
+            name: 'Retail (Nonreportable)',
+            line: { color: '#22c55e', width: 2 }
         }
     ];
 
-    Plotly.newPlot('chartDiv', traces, {
-        title: getReadableName(asset) + " - COT Net Positions",
-        xaxis: { title: 'Date' },
-        yaxis: { title: 'Net Position' }
-    });
+    const layout = {
+        title: {
+            text: getReadableName(asset) + " - COT Net Positions",
+            font: { size: 20 }
+        },
+
+        paper_bgcolor: '#111827',
+        plot_bgcolor: '#111827',
+        font: { color: '#e5e7eb' },
+
+        xaxis: {
+            title: 'Date',
+            gridcolor: '#374151',
+            zerolinecolor: '#374151',
+
+            rangeselector: {
+                buttons: [
+                    { count: 3, step: 'month', stepmode: 'backward', label: '3m' },
+                    { count: 6, step: 'month', stepmode: 'backward', label: '6m' },
+                    { count: 1, step: 'year', stepmode: 'backward', label: '1y' },
+                    { step: 'all', label: 'All' }
+                ]
+            }
+        },
+
+        yaxis: {
+            title: 'Net Position',
+            gridcolor: '#374151',
+            zerolinecolor: '#374151'
+        },
+
+        legend: {
+            orientation: 'h',
+            y: -0.2
+        },
+
+        hovermode: 'x unified'
+    };
+
+    Plotly.newPlot('chartDiv', traces, layout, { responsive: true });
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

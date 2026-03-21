@@ -9,7 +9,6 @@ app = FastAPI()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(os.path.dirname(BASE_DIR), "data", "cot_data.json")
 
-# Statische Dateien
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 
 @app.get("/")

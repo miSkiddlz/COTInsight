@@ -4,7 +4,6 @@ import pandas as pd
 from datetime import date
 from cot_reports import cot_year
 
-# ========== CONFIG ==========
 YEARS_BACK = 3
 
 FILTER_MARKETS = [
@@ -15,14 +14,12 @@ FILTER_MARKETS = [
     "NASDAQ"
 ]
 
-# ========== PATHS ==========
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 
 OUTPUT_FILE = os.path.join(DATA_DIR, "cot_data.json")
 
-# ========== LOAD DATA ==========
 print("Lade COT Daten...")
 
 current_year = date.today().year
@@ -45,7 +42,6 @@ for y in years:
 
 df = pd.concat(dfs)
 
-# ========== CLEAN DATA ==========
 print("Verarbeite Daten...")
 
 df = df[[
@@ -70,10 +66,8 @@ df = df.rename(columns={
     "Nonreportable Positions-Short (All)": "nonreportable_positions_short_all"
 })
 
-# Datum fixen
 df["report_date_as_yyyymmdd"] = pd.to_datetime(df["report_date_as_yyyymmdd"])
 
-# ========== FILTER ==========
 print("Filtere Märkte...")
 
 df = df[
@@ -83,17 +77,14 @@ df = df[
     )
 ]
 
-# Zahlen fixen
 for col in df.columns:
     if "positions" in col:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
 df = df.fillna(0)
 
-# Sortieren (wichtig für Plot!)
 df = df.sort_values("report_date_as_yyyymmdd")
 
-# ========== SAVE ==========
 print("Speichere JSON...")
 
 df.to_json(OUTPUT_FILE, orient="records", date_format="iso")

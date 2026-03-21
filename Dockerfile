@@ -8,7 +8,6 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-# Beim Containerstart zuerst Daten abrufen
 RUN python scripts/fetch_cot_api.py || echo "Fehler beim initialen Fetch, Container startet trotzdem"
 
 EXPOSE 10000

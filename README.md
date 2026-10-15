@@ -6,6 +6,29 @@ Interactive dashboard for the official CFTC Commitments of Traders reports.
 GitHub Pages serves static files. GitHub Actions builds the data without Docker,
 a backend, API keys, paid data providers or Python dependencies.
 
+## Neuer Analyse-Arbeitsbereich
+
+- **Weekly Positioning Radar:** relative Wochenbewegungen, historische Randbereiche
+  und Veränderungen des Open Interest; Wochenbriefing als Markdown exportierbar.
+- **Markt-Screener:** sortierbare Ergebnisse, Suche, Mindest-OI, historische Serien,
+  Perzentil-/Vorzeichenfilter, Watchlist-Filter, Pagination und CSV-Export.
+- **Historische Einordnung:** Perzentile und COT-Spannenindex über 26, 52, 104 oder
+  156 Kalenderwochen; Veränderungen über exakt 1, 4 und 13 Wochen.
+- **Stichtagsanalyse:** frühere Beobachtung auswählen; Kennzahlen und Charts
+  verwenden keine späteren Beobachtungen. Keine revisionssicheren Backtest-Daten.
+- **Chart-Werkzeuge:** Zeitraum 13W/26W/52W/104W/All, Kontrakte oder OI-Anteile,
+  optionales Open-Interest-Overlay sowie Exporte für den gewählten Zeitraum.
+- **Marktvergleich:** gewählter Kontrakt plus bis zu drei weitere Märkte, dieselbe
+  Händlergruppe im selben Berichtstyp, als Nettoanteil am Open Interest.
+- **Persönlicher Arbeitsbereich:** lokale Watchlist, benannte Ansichten, teilbare
+  Analyse-URLs und Backup/Import für Browserwechsel.
+- **Lokale Regeln:** Perzentilschwellen, absolute relative Wochenänderung oder
+  Vorzeichenwechsel; auf der geöffneten Seite geprüft, ohne Nachrichtenversand.
+
+Einstieg und genaue Berechnungsregeln: [WORKSPACE_GUIDE.md](WORKSPACE_GUIDE.md).
+Es sind weiterhin keine Konten, zusätzliche Server oder bezahlten Datenquellen nötig.
+Watchlist, Ansichten und Regeln gehören zum Browser und werden nicht in GitHub gespeichert.
+
 ## Datenquelle und Umfang
 
 Der Import lädt die maschinenlesbaren, kommagetrennten Textdateien aus den
@@ -125,13 +148,26 @@ Für die veröffentlichte Website das Argument im Workflow setzen.
 python -m unittest discover -s tests -v
 ```
 
+Optional mit installiertem Node.js (keine npm-Pakete nötig):
+
+```sh
+node --test tests/test_analytics.cjs
+```
+
+GitHub Actions führt beide Testgruppen automatisch aus. Node.js wird nur für
+diese Tests benötigt; die Datenverarbeitung bleibt reine Python-Standardbibliothek.
+
 Die Tests laufen ohne Netzwerk, einschließlich gespeicherter CFTC-Beispielzeilen
 und eines unabhängigen Abgleichs mit einem offiziellen JSON-API-Ergebnis.
 
 ## Datenformat und Projektstruktur
 
 - `scripts/fetch_cot_api.py`: Definitionen, Download, Schema- und Werteprüfung, Export.
-- `site/index.html`, `site/styles.css`, `site/charts.js`: Oberfläche und Darstellung.
+- `scripts/cot_analysis.py`: vorab berechnete historische Kennzahlen und Wochenvergleiche.
+- `site/index.html`, `site/styles.css`, `site/charts.js`: Oberfläche und Chartdarstellung.
+- `site/analytics.js`: dieselben Berechnungsdefinitionen für historische Browseransichten.
+- `site/workspace.js`: Radar, Screener, Vergleiche, lokale Einstellungen und Exporte.
+- `site/data/summaries/`: vorberechnete Momentaufnahmen je Berichtstyp für Radar/Screener.
 - `site/data/catalog.json`: Berichtstypen, Märkte, Zeiträume, Quellen, SHA-256-Prüfsummen
   der Originalarchive und Qualitätsstatistik.
 - `site/data/<report>/<code>-<hash>.json`: normalisierte Historie eines Kontrakts.

@@ -25,6 +25,11 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Test browser-side analysis formulas
+        run: node --test tests/test_analytics.cjs
       - name: Test data processing
         run: python -m unittest discover -s tests -v
       - name: Download and validate official CFTC data

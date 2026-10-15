@@ -21,6 +21,11 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 import zipfile
 
+try:
+    from .cot_analysis import summarize
+except ImportError:  # Direct script invocation from the project root.
+    from cot_analysis import summarize
+
 BASE_DIR = Path(__file__).resolve().parents[1]
 OUTPUT_DIR = BASE_DIR / "site/data"
 SOURCE_PAGE = "https://www.cftc.gov/MarketReports/CommitmentsofTraders/HistoricalCompressed/index.htm"
@@ -267,12 +272,14 @@ def build_report(report, years, output, today, loader):
         raise ValueError(f"No data for {report.id}")
     latest_report = max(r["date"] for records in markets.values() for r in records)
     metadata = []
+    summaries = []
     for code, records in sorted(markets.items()):
         records.sort(key=lambda r: r["date"])
         if len({r["date"] for r in records}) != len(records):
             raise ValueError(f"Duplicate market history: {report.id}/{code}")
         filename = code.replace("+", "-") + ".json"
         latest = records[-1]
+        summaries.append({"code": code, "snapshot": summarize(records, report.groups)})
         payload = {"schema_version": 2, "report": report.id, "code": code, "records": records}
         raw_payload = {"report": report.id, "code": code, "schemas": schemas,
                        "rows": sorted(raw[code], key=lambda r: r["date"]), "sources": sources}
@@ -285,12 +292,16 @@ def build_report(report, years, output, today, loader):
         metadata.append({"code": code, "name": latest["name"], "exchange": latest["exchange"], "unit": latest["unit"],
                          "first_date": records[0]["date"], "last_date": latest["date"], "observations": len(records),
                          "current": latest["date"] == latest_report, "path": path, "raw_path": raw_path})
+    summary_payload = {"schema_version": 1, "report": report.id, "latest_report_date": latest_report, "markets": summaries}
+    summary_digest = hashlib.sha256(json.dumps(summary_payload, sort_keys=True).encode()).hexdigest()[:12]
+    summary_path = f"summaries/{report.id}-{summary_digest}.json"
+    write_json(output / summary_path, summary_payload)
     missing_rows = sum(any(g[side] is None for g in record["groups"].values() for side in ("long", "short"))
                        for records in markets.values() for record in records)
     rounded_rows = sum(bool(record["rounding_difference"]) for records in markets.values() for record in records)
     return {"id": report.id, "label": report.label, "family": report.family, "combined": report.combined,
             "groups": [{"id": g.id, "label": g.label, "has_spreading": bool(g.spreading)} for g in report.groups],
-            "latest_report_date": latest_report, "markets": sorted(metadata, key=lambda m: (not m["current"], m["name"], m["code"])),
+            "summary_path": summary_path, "latest_report_date": latest_report, "markets": sorted(metadata, key=lambda m: (not m["current"], m["name"], m["code"])),
             "rows": sum(source["rows"] for source in sources), "quality": {"rows_with_missing_positions": missing_rows, "rows_with_rounding_differences": rounded_rows},
             "sources": sources, "warnings": warnings}
 

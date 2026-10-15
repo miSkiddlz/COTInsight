@@ -1,0 +1,10 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const a=require('../site/analytics.js');
+const records=Array.from({length:53},(_,i)=>({date:a.shift('2026-10-06',-(52-i)*7),unit:'A',open_interest:1000,groups:{test:{long:100+i,short:100,net:i,spreading:null}}}));
+test('calendar windows and empirical midranks',()=>{const w=a.summarize(records,['test']).groups.test.windows['52'];assert.equal(w.n,52);assert.equal(w.min,1);assert.equal(w.cot_index,100);assert.equal(w.percentile,100*51.5/52);});
+test('ties, flat ranges and minimum coverage',()=>{assert.equal(a.rankMetrics(Array(52).fill(5),5,52).percentile,50);assert.equal(a.rankMetrics(Array(52).fill(5),5,52).cot_index,null);assert.equal(a.rankMetrics(Array(41).fill(5),5,52).percentile,null);});
+test('historical dates cannot see later observations',()=>{const s=a.summarize(records,['test'],records[43].date);assert.equal(s.groups.test.net,43);assert.equal(s.groups.test.windows['52'].max,43);});
+test('same-unit segment cannot bridge a different intervening unit',()=>{const data=structuredClone(records);data[51].unit='B';const s=a.summarize(data,['test']);assert.equal(s.groups.test.windows['52'].n,1);assert.equal(s.groups.test.changes['1'].net,null);});
+test('missing weeks and zero denominators are not fabricated',()=>{const data=structuredClone(records);data.splice(51,1);assert.equal(a.summarize(data,['test']).groups.test.changes['1'].net,null);assert.equal(a.share(1,0),null);assert.equal(a.share(null,100),null);assert.equal(a.share(0,100),0);});
+test('date range respects endpoints without padding',()=>{assert.equal(a.range(records,records.at(-1).date,13).length,13);assert.equal(a.range(records,records[30].date,null).length,31);});

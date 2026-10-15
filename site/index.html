@@ -1,77 +1,674 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#14121c">
-    <meta name="description" content="Explore futures market positioning with COTInsight. Weekly CFTC data, net positions and an interactive market view.">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#14121c" />
+    <meta
+      name="description"
+      content="Explore futures market positioning with COTInsight. Weekly CFTC data, net positions and an interactive market view."
+    />
     <title>COTInsight — A clearer view of market positioning</title>
-    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="./styles.css">
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css?v=workspace-1" />
     <script src="https://cdn.plot.ly/plotly-2.30.0.min.js" defer></script>
-    <script src="./charts.js" defer></script>
-</head>
-<body>
+    <script src="./analytics.js?v=workspace-1" defer></script>
+    <script src="./charts.js?v=workspace-1" defer></script>
+    <script src="./workspace.js?v=workspace-1" defer></script>
+  </head>
+  <body>
     <a class="skip-link" href="#dashboard">Skip to dashboard</a>
     <div class="ambient ambient-one" aria-hidden="true"></div>
     <div class="ambient ambient-two" aria-hidden="true"></div>
     <div class="container">
-        <header class="topbar">
-            <a class="brand" href="./" aria-label="COTInsight home">
-                <svg class="brand-mark" viewBox="0 0 36 36" fill="none" aria-hidden="true"><rect x="1" y="1" width="34" height="34" rx="11" stroke="currentColor" stroke-opacity=".3"/><path d="M9 24V18M15 24V12M21 24V16M27 24V9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-                <span>COT<span class="brand-light">Insight</span><span class="brand-dot">.</span></span>
-            </a>
-            <nav aria-label="Main navigation">
-                <a class="nav-active" href="#dashboard">Dashboard</a>
-                <a href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm" target="_blank" rel="noopener noreferrer">CFTC reports <span aria-hidden="true">↗</span></a>
-            </nav>
-        </header>
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="COTInsight home">
+          <svg
+            class="brand-mark"
+            viewBox="0 0 36 36"
+            fill="none"
+            aria-hidden="true"
+          >
+            <rect
+              x="1"
+              y="1"
+              width="34"
+              height="34"
+              rx="11"
+              stroke="currentColor"
+              stroke-opacity=".3"
+            />
+            <path
+              d="M9 24V18M15 24V12M21 24V16M27 24V9"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span
+            >COT<span class="brand-light">Insight</span
+            ><span class="brand-dot">.</span></span
+          >
+        </a>
+        <nav aria-label="Main navigation">
+          <a class="nav-active" href="#radar">Radar</a
+          ><a href="#screener">Screener</a><a href="#watchlist">Watchlist</a>
+          <a
+            href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm"
+            target="_blank"
+            rel="noopener noreferrer"
+            >CFTC reports <span aria-hidden="true">↗</span></a
+          >
+        </nav>
+      </header>
 
-        <main>
-            <section class="hero" aria-labelledby="hero-title">
-                <div class="eyebrow"><span class="small-line"></span> THE POSITIONING PERSPECTIVE</div>
-                <h1 id="hero-title">Behind every market,<br><span class="gradient-text">there’s a position.</span></h1>
-                <p class="hero-copy">A clearer view of futures positioning.<br>Explore the Commitments of Traders, one market at a time.</p>
-                <div class="hero-tags"><span><i aria-hidden="true"></i> Official CFTC data</span><span>Weekly reports</span><span id="dataCoverage">All 7 COT report types</span></div>
-                <div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><div class="art-core">C<span>↗</span></div><span class="art-label">A DIFFERENT PERSPECTIVE</span></div>
-            </section>
+      <main>
+        <section class="hero" aria-labelledby="hero-title">
+          <div class="eyebrow">
+            <span class="small-line"></span> THE POSITIONING WORKSPACE
+          </div>
+          <h1 id="hero-title">
+            Behind every market,<br /><span class="gradient-text"
+              >there’s a position.</span
+            >
+          </h1>
+          <p class="hero-copy">
+            A clearer view of futures positioning.<br />Explore the Commitments
+            of Traders, one market at a time.
+          </p>
+          <div class="hero-tags">
+            <span><i aria-hidden="true"></i> Official CFTC data</span
+            ><span>Weekly reports</span
+            ><span id="dataCoverage">All 7 COT report types</span>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="orbit orbit-one"></div>
+            <div class="orbit orbit-two"></div>
+            <div class="orbit orbit-three"></div>
+            <div class="art-core">C<span>↗</span></div>
+            <span class="art-label">A DIFFERENT PERSPECTIVE</span>
+          </div>
+        </section>
 
-            <section id="dashboard" class="dashboard" aria-labelledby="dashboard-title">
-                <div class="section-heading">
-                    <div><p class="eyebrow">01 / MARKET OVERVIEW</p><h2 id="dashboard-title">Read the positioning.</h2></div>
-                </div>
-                <div class="data-controls">
-                    <div class="controls"><label for="reportSelect">REPORT TYPE</label><select id="reportSelect" disabled><option>Loading reports…</option></select></div>
-                    <div class="controls"><label for="marketSearch">FIND A MARKET</label><input id="marketSearch" type="search" placeholder="Name, exchange or CFTC code" disabled autocomplete="off"></div>
-                    <div class="controls market-control"><label for="assetSelect">CONTRACT / EXCHANGE / CODE</label><select id="assetSelect" disabled><option>Loading markets…</option></select></div>
-                </div>
-                <div class="filter-summary"><label class="checkbox-label"><input type="checkbox" id="latestOnly" checked> Latest-report markets only</label><span id="marketCount">—</span></div>
-                <p id="reportDescription" class="report-description"></p>
-                <p id="dataStatus" class="data-status" role="status">Loading COT data…</p>
+        <div class="global-controls">
+          <div class="controls">
+            <label for="reportSelect">REPORT TYPE</label
+            ><select id="reportSelect" disabled>
+              <option>Loading reports…</option>
+            </select>
+          </div>
+          <div class="controls">
+            <label for="focusGroup">FOCUS CATEGORY</label
+            ><select id="focusGroup" disabled></select>
+          </div>
+          <div class="controls">
+            <label for="lookbackSelect">HISTORICAL WINDOW</label
+            ><select id="lookbackSelect">
+              <option value="26">26 weeks</option>
+              <option value="52" selected>52 weeks</option>
+              <option value="104">104 weeks</option>
+              <option value="156">156 weeks</option>
+            </select>
+          </div>
+        </div>
+        <div class="workspace-tools">
+          <span>One workspace. Seven report types.</span
+          ><button type="button" id="refreshDataset" class="text-button">
+            Reload latest dataset ↻
+          </button>
+        </div>
+        <p id="reportDescription" class="report-description"></p>
+        <p id="workspaceNotice" class="workspace-notice" role="status"></p>
+        <section
+          id="radar"
+          class="research-section"
+          aria-labelledby="radarTitle"
+        >
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">01 / THE WEEKLY RADAR</p>
+              <h2 id="radarTitle">What moved beneath the surface?</h2>
+            </div>
+            <button
+              type="button"
+              id="radarExport"
+              disabled
+              class="quiet-button"
+            >
+              Export briefing ↗
+            </button>
+          </div>
+          <p id="radarScope" class="section-subtitle">
+            Loading positioning snapshots…
+          </p>
+          <p id="radarNarrative" class="briefing-text"></p>
+          <div class="radar-grid">
+            <article class="radar-card">
+              <p class="eyebrow">RELATIVE POSITION SHIFTS</p>
+              <h3>Largest weekly moves</h3>
+              <div id="radarMoves"></div>
+            </article>
+            <article class="radar-card">
+              <p class="eyebrow">HISTORICAL CONTEXT</p>
+              <h3>At the edges of the range</h3>
+              <div id="radarExtremes"></div>
+            </article>
+            <article class="radar-card">
+              <p class="eyebrow">MARKET PARTICIPATION</p>
+              <h3>Open interest changes</h3>
+              <div id="radarOI"></div>
+            </article>
+          </div>
+          <p class="data-note">
+            Descriptive rankings, not forecasts. Position moves use percentage
+            points of open interest; historical extremes require sufficient
+            comparable observations.
+          </p>
+        </section>
+        <section
+          id="dashboard"
+          class="dashboard"
+          aria-labelledby="dashboard-title"
+        >
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">02 / MARKET ANALYSIS</p>
+              <h2 id="dashboard-title">Read the positioning.</h2>
+            </div>
+          </div>
+          <div class="analysis-actions">
+            <button
+              type="button"
+              id="watchToggle"
+              class="quiet-button"
+              disabled
+            >
+              ☆ Add to watchlist</button
+            ><button
+              type="button"
+              id="shareButton"
+              disabled
+              class="quiet-button"
+            >
+              Copy analysis link ↗</button
+            ><input
+              id="shareLink"
+              type="url"
+              readonly
+              hidden
+              aria-label="Shareable analysis link"
+            />
+          </div>
+          <div class="data-controls">
+            <div class="controls">
+              <label for="marketSearch">FIND A MARKET</label
+              ><input
+                id="marketSearch"
+                type="search"
+                placeholder="Name, exchange or CFTC code"
+                disabled
+                autocomplete="off"
+              />
+            </div>
+            <div class="controls market-control">
+              <label for="assetSelect">CONTRACT / EXCHANGE / CODE</label
+              ><select id="assetSelect" disabled>
+                <option>Loading markets…</option>
+              </select>
+            </div>
+          </div>
+          <div class="filter-summary">
+            <label class="checkbox-label"
+              ><input type="checkbox" id="latestOnly" checked /> Latest-report
+              markets only</label
+            ><span id="marketCount">—</span>
+          </div>
 
-                <div class="market-facts"><div><span>OPEN INTEREST</span><strong id="openInterest">—</strong></div><div><span>CONTRACT UNIT</span><strong id="unitLabel">—</strong></div><div><span>PREVIOUS OBSERVATION</span><strong id="comparisonDate">—</strong></div></div>
-                <div class="kpi-row" id="kpiRow" aria-live="polite"></div>
-                <article class="chart-card" aria-labelledby="chartTitle">
-                    <div class="chart-heading"><div><p class="eyebrow">THE BIGGER PICTURE</p><h3 id="chartTitle">Positioning over time</h3><p id="selectedMarket" class="selected-market">Select a market to explore its history.</p></div><div class="controls chart-metric"><label for="metricSelect">SHOW POSITIONS</label><select id="metricSelect"><option value="net">Net</option><option value="long">Long</option><option value="short">Short</option><option value="spreading">Spreading</option></select></div></div>
-                    <div id="chartDiv" role="region" aria-label="Interactive net position history chart"></div>
-                    <div class="chart-footer"><span><span class="source-dot"></span><span id="sourceLabel">Source: CFTC</span></span><span>Report date <strong id="lastUpdate">—</strong></span></div>
-                </article>
-                <section class="positions-panel" aria-labelledby="positionsTitle">
-                    <div class="table-heading"><div><p class="eyebrow">THE UNDERLYING NUMBERS</p><h3 id="positionsTitle">Latest report breakdown</h3></div><a id="historyDownload" class="export-link" download aria-disabled="true">History JSON ↗</a></div>
-                    <div class="table-scroll" tabindex="0" role="region" aria-label="Latest positions, horizontally scrollable"><table><thead><tr><th scope="col">Trader category</th><th scope="col">Long</th><th scope="col">Short</th><th scope="col">Spreading</th><th scope="col">Net</th><th scope="col">Δ Net</th><th scope="col">Net / OI</th></tr></thead><tbody id="positionsBody"></tbody></table></div>
-                    <p id="comparisonNote" class="data-note"></p><p id="roundingNote" class="data-note"></p>
-                </section>
-                <details class="methodology"><summary>Data coverage &amp; methodology</summary><div class="methodology-body">
-                    <p>Coverage: <span id="coverageText">—</span>. Dataset built: <span id="generatedAt">—</span>.</p>
-                    <p>Markets are identified by CFTC contract code, separately for each report type. Mini, Micro, exchange-specific and consolidated series are never merged. Turn off “Latest-report markets only” to include older series.</p>
-                    <p>Net = Long − Short. Spreading positions count on both sides and do not add to Net. Net / OI is a signed net share of total open interest. “—” means missing data or a field not applicable to that category; it does not mean zero.</p>
-                    <p>Dates refer to the position reference date, not the publication or download date. Changes compare consecutive available observations, with their dates shown above. Nonreportable positions are not exclusively retail traders. Green/red changes indicate direction, not profitability.</p>
-                    <p>The chart and table use the source's All-maturities position fields. Other published columns, including changes, percentages, trader counts, concentration and Old/Other maturity fields where provided, remain in the complete source JSON. Each raw row references its original column schema; suppressed values are preserved.</p>
-                    <div class="methodology-links"><a id="rawDownload" class="export-link" download aria-disabled="true">Complete source JSON ↗</a><a href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/HistoricalCompressed/index.htm" target="_blank" rel="noopener noreferrer">Official archives ↗</a><a href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/ExplanatoryNotes/index.htm" target="_blank" rel="noopener noreferrer">CFTC definitions ↗</a></div>
-                </div></details>
-            </section>
-        </main>
-        <footer class="footer-bar"><a class="footer-brand" href="./">COTInsight<span>.</span></a><span>A little more perspective on the market.</span><a href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm" target="_blank" rel="noopener noreferrer">Explore the source <span aria-hidden="true">↗</span></a></footer>
+          <p id="dataStatus" class="data-status" role="status">
+            Loading COT data…
+          </p>
+
+          <div class="analysis-toolbar">
+            <div class="controls">
+              <label for="observationSelect">ANALYSE AS OF</label
+              ><select id="observationSelect" disabled></select>
+            </div>
+            <div class="controls">
+              <label for="rangeSelect">CHART PERIOD</label
+              ><select id="rangeSelect">
+                <option value="13">13W</option>
+                <option value="26">26W</option>
+                <option value="52" selected>52W</option>
+                <option value="104">104W</option>
+                <option value="all">All history</option>
+              </select>
+            </div>
+            <div class="controls">
+              <label for="scaleSelect">POSITION SCALE</label
+              ><select id="scaleSelect">
+                <option value="contracts">Contracts</option>
+                <option value="share">% of open interest</option>
+              </select>
+            </div>
+            <label class="checkbox-label"
+              ><input id="showOI" type="checkbox" /> Overlay open
+              interest</label
+            >
+          </div>
+          <div id="historicalBanner" class="historical-banner" hidden></div>
+          <div class="market-facts">
+            <div>
+              <span>OPEN INTEREST</span><strong id="openInterest">—</strong>
+            </div>
+            <div>
+              <span>CONTRACT UNIT</span><strong id="unitLabel">—</strong>
+            </div>
+            <div>
+              <span>PREVIOUS OBSERVATION</span
+              ><strong id="comparisonDate">—</strong>
+            </div>
+          </div>
+          <div class="kpi-row" id="kpiRow" aria-live="polite"></div>
+          <section class="insight-panel" aria-labelledby="insightTitle">
+            <div class="table-heading">
+              <div>
+                <p class="eyebrow">THE HISTORICAL PERSPECTIVE</p>
+                <h3 id="insightTitle">Positioning in context</h3>
+              </div>
+              <span id="insightCategory" class="context-tag"></span>
+            </div>
+            <div id="insightStats" class="insight-grid"></div>
+            <p id="insightNotes" class="data-note"></p>
+          </section>
+          <article class="chart-card" aria-labelledby="chartTitle">
+            <div class="chart-heading">
+              <div>
+                <p class="eyebrow">THE BIGGER PICTURE</p>
+                <h3 id="chartTitle">Positioning over time</h3>
+                <p id="selectedMarket" class="selected-market">
+                  Select a market to explore its history.
+                </p>
+              </div>
+              <div class="controls chart-metric">
+                <label for="metricSelect">SHOW POSITIONS</label
+                ><select id="metricSelect">
+                  <option value="net">Net</option>
+                  <option value="long">Long</option>
+                  <option value="short">Short</option>
+                  <option value="spreading">Spreading</option>
+                </select>
+              </div>
+            </div>
+            <div
+              id="chartDiv"
+              role="region"
+              aria-label="Interactive net position history chart"
+            ></div>
+            <div class="chart-footer">
+              <span
+                ><span class="source-dot"></span
+                ><span id="sourceLabel">Source: CFTC</span></span
+              ><span>Report date <strong id="lastUpdate">—</strong></span>
+            </div>
+          </article>
+          <section class="positions-panel" aria-labelledby="positionsTitle">
+            <div class="table-heading">
+              <div>
+                <p class="eyebrow">THE UNDERLYING NUMBERS</p>
+                <h3 id="positionsTitle">Latest report breakdown</h3>
+              </div>
+              <div class="export-actions">
+                <button
+                  type="button"
+                  id="csvDownload"
+                  class="text-button"
+                  disabled
+                >
+                  Chart-period CSV ↗</button
+                ><a
+                  id="historyDownload"
+                  class="export-link"
+                  download
+                  aria-disabled="true"
+                  >Full history JSON ↗</a
+                >
+              </div>
+            </div>
+            <div
+              class="table-scroll"
+              tabindex="0"
+              role="region"
+              aria-label="Latest positions, horizontally scrollable"
+            >
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Trader category</th>
+                    <th scope="col">Long</th>
+                    <th scope="col">Short</th>
+                    <th scope="col">Spreading</th>
+                    <th scope="col">Net</th>
+                    <th scope="col">Δ Net</th>
+                    <th scope="col">Net / OI</th>
+                  </tr>
+                </thead>
+                <tbody id="positionsBody"></tbody>
+              </table>
+            </div>
+            <p id="comparisonNote" class="data-note"></p>
+            <p id="roundingNote" class="data-note"></p>
+          </section>
+          <section class="comparison-panel" aria-labelledby="compareTitle">
+            <div class="table-heading">
+              <div>
+                <p class="eyebrow">A COMMON SCALE</p>
+                <h3 id="compareTitle">Compare market positioning</h3>
+              </div>
+            </div>
+            <p class="section-subtitle">
+              Compare the focus category as net % of open interest within this
+              report type. Select up to three additional contracts. The selected
+              chart period and analysis date apply.
+            </p>
+            <div class="controls comparison-control">
+              <label for="compareSelect"
+                >ADDITIONAL MARKETS (CTRL / CMD FOR MULTIPLE)</label
+              ><select
+                id="compareSelect"
+                multiple
+                size="5"
+                aria-describedby="compareStatus"
+              ></select>
+            </div>
+            <p id="compareStatus" class="data-note" role="status">
+              Select additional markets to compare.
+            </p>
+            <div
+              id="compareChart"
+              role="region"
+              aria-label="Normalized market comparison chart"
+              hidden
+            ></div>
+          </section>
+          <details class="methodology">
+            <summary>Data coverage &amp; methodology</summary>
+            <div class="methodology-body">
+              <p>Historical views use currently published archives, which can contain later corrections. They are not archived release vintages or revision-free backtests.</p>
+              <p>
+                Coverage: <span id="coverageText">—</span>. Dataset built:
+                <span id="generatedAt">—</span>.
+              </p>
+              <p>
+                Markets are identified by CFTC contract code, separately for
+                each report type. Mini, Micro, exchange-specific and
+                consolidated series are never merged. Turn off “Latest-report
+                markets only” to include older series.
+              </p>
+              <p>
+                Net = Long − Short. Spreading positions count on both sides and
+                do not add to Net. Net / OI is a signed net share of total open
+                interest. “—” means missing data or a field not applicable to
+                that category; it does not mean zero.
+              </p>
+              <p>
+                Dates refer to the position reference date, not the publication
+                or download date. Changes compare consecutive available
+                observations, with their dates shown above. Nonreportable
+                positions are not exclusively retail traders. Green/red changes
+                indicate direction, not profitability.
+              </p>
+              <p>
+                The chart and table use the source's All-maturities position
+                fields. Other published columns, including changes, percentages,
+                trader counts, concentration and Old/Other maturity fields where
+                provided, remain in the complete source JSON. Each raw row
+                references its original column schema; suppressed values are
+                preserved.
+              </p>
+              <p>
+                Historical windows are calendar weeks and require at least 80%
+                of expected weekly observations within a contiguous
+                identical-unit segment. The percentile uses empirical midranks
+                (equal observations share the middle rank). The COT range index
+                is 100 × (current net − minimum net) / (maximum net − minimum
+                net). It is undefined for a flat range. Both use net contract
+                positions, include the selected observation, never future data,
+                and describe this imported history only. Changing the chart
+                scale does not change these metrics.
+              </p>
+              <div class="methodology-links">
+                <a
+                  id="rawDownload"
+                  class="export-link"
+                  download
+                  aria-disabled="true"
+                  >Complete source JSON ↗</a
+                ><a
+                  href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/HistoricalCompressed/index.htm"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Official archives ↗</a
+                ><a
+                  href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/ExplanatoryNotes/index.htm"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >CFTC definitions ↗</a
+                >
+              </div>
+            </div>
+          </details>
+        </section>
+        <section
+          id="screener"
+          class="research-section"
+          aria-labelledby="screenerTitle"
+        >
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">03 / EXPLORE THE LANDSCAPE</p>
+              <h2 id="screenerTitle">Find the positioning that stands out.</h2>
+            </div>
+            <button
+              type="button"
+              id="screenExport"
+              disabled
+              class="quiet-button"
+            >
+              Export filtered CSV ↗
+            </button>
+          </div>
+          <p id="screenScope" class="section-subtitle"></p>
+          <div class="screener-controls">
+            <div class="controls">
+              <label for="screenSearch">SEARCH</label
+              ><input
+                type="search"
+                id="screenSearch"
+                placeholder="Market, exchange or code"
+              />
+            </div>
+            <div class="controls">
+              <label for="screenSort">SORT BY</label
+              ><select id="screenSort">
+                <option value="move">Weekly move · absolute pp</option>
+                <option value="upper">Percentile · highest first</option>
+                <option value="lower">Percentile · lowest first</option>
+                <option value="oi">Open interest · highest first</option>
+                <option value="net">Net / OI · highest first</option>
+                <option value="name">Market name</option>
+              </select>
+            </div>
+            <div class="controls">
+              <label for="screenFilter">POSITIONING FILTER</label
+              ><select id="screenFilter">
+                <option value="all">All positions</option>
+                <option value="extreme">Percentile ≤10 or ≥90</option>
+                <option value="upper">Percentile ≥90</option>
+                <option value="lower">Percentile ≤10</option>
+                <option value="flip">Net sign changed in 1W</option>
+                <option value="watch">My watchlist</option>
+              </select>
+            </div>
+            <div class="controls">
+              <label for="minOI">MINIMUM OPEN INTEREST</label
+              ><input
+                id="minOI"
+                type="number"
+                min="0"
+                step="1000"
+                value="1000"
+              />
+            </div>
+          </div>
+          <div class="filter-summary">
+            <label class="checkbox-label"
+              ><input type="checkbox" id="screenLatest" checked /> Latest-report
+              markets only</label
+            ><span id="screenCount"></span>
+          </div>
+          <div
+            class="table-scroll"
+            tabindex="0"
+            role="region"
+            aria-label="Market screener, horizontally scrollable"
+          >
+            <table class="screener-table">
+              <thead>
+                <tr>
+                  <th scope="col">Market / CFTC code</th>
+                  <th scope="col">Net / OI</th>
+                  <th scope="col">1W Δ pp</th>
+                  <th scope="col">4W Δ pp</th>
+                  <th scope="col">Percentile</th>
+                  <th scope="col">COT index</th>
+                  <th scope="col">OI</th>
+                  <th scope="col">Report date</th>
+                  <th scope="col">Save</th>
+                </tr>
+              </thead>
+              <tbody id="screenBody"></tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <button type="button" id="screenPrevious" class="quiet-button">
+              ← Previous</button
+            ><span id="screenPage"></span
+            ><button type="button" id="screenNext" class="quiet-button">
+              Next →
+            </button>
+          </div>
+          <p class="data-note">
+            pp = percentage points of open interest. 1W/4W changes require an
+            observation exactly 7/28 days earlier in the same unit segment.
+            Percentile and COT index use the global historical window. “—” means
+            unavailable, including insufficient history. Rankings compare
+            relative positions, not equal economic exposure.
+          </p>
+        </section>
+        <section
+          id="watchlist"
+          class="research-section"
+          aria-labelledby="watchlistTitle"
+        >
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">04 / YOUR PERSPECTIVE</p>
+              <h2 id="watchlistTitle">Keep your markets close.</h2>
+            </div>
+            <div class="export-actions">
+              <button id="backupExport" type="button" class="quiet-button">
+                Export workspace</button
+              ><button
+                type="button"
+                class="quiet-button"
+                id="backupImportButton"
+              >
+                Import workspace</button
+              ><input
+                type="file"
+                id="backupImport"
+                accept="application/json,.json"
+                hidden
+              />
+            </div>
+          </div>
+          <p class="section-subtitle">
+            Watchlist, saved views and rules live in this browser. No account,
+            cloud sync or background notifications. Export a backup to move them
+            to another browser.
+          </p>
+          <div id="watchlistItems" class="watchlist-grid"></div>
+          <div class="saved-views">
+            <div class="table-heading"><h3>Saved analysis views</h3></div>
+            <div class="save-view-form">
+              <label class="visually-hidden" for="viewName">View name</label
+              ><input
+                id="viewName"
+                maxlength="60"
+                placeholder="Name this analysis view"
+              /><button
+                id="saveView"
+                disabled
+                type="button"
+                class="quiet-button"
+              >
+                Save current view
+              </button>
+            </div>
+            <div id="savedViews" class="view-list"></div>
+          </div>
+          <div class="alert-panel">
+            <div class="table-heading">
+              <div>
+                <p class="eyebrow">LOCAL POSITIONING RULES</p>
+                <h3>Your on-page alerts</h3>
+              </div>
+            </div>
+            <p class="section-subtitle">
+              Add a rule for the selected market and focus category. Rules
+              evaluate the latest dataset when this page loads or when you
+              change the workspace. They do not monitor in the background or
+              send messages.
+            </p>
+            <div class="alert-form">
+              <div class="controls">
+                <label for="alertType">CONDITION</label
+                ><select id="alertType">
+                  <option value="high">Percentile at or above</option>
+                  <option value="low">Percentile at or below</option>
+                  <option value="move">Absolute 1W Δ net/OI ≥ pp</option>
+                  <option value="flip">Net sign changed in 1W</option>
+                </select>
+              </div>
+              <div class="controls">
+                <label for="alertThreshold">THRESHOLD</label
+                ><input
+                  type="number"
+                  id="alertThreshold"
+                  value="90"
+                  min="0"
+                  max="100"
+                  step="0.5"
+                />
+              </div>
+              <button id="addAlert" disabled type="button" class="quiet-button">
+                Add rule for this market
+              </button>
+            </div>
+            <div id="alertItems" class="view-list"></div>
+          </div>
+        </section>
+      </main>
+      <footer class="footer-bar">
+        <a class="footer-brand" href="./">COTInsight<span>.</span></a
+        ><span>A little more perspective on the market.</span
+        ><a
+          href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Explore the source <span aria-hidden="true">↗</span></a
+        >
+      </footer>
     </div>
-</body>
+  </body>
 </html>

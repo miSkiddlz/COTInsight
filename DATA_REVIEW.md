@@ -107,3 +107,16 @@ führt absichtlich zu einem sichtbaren Buildfehler statt zu einer geratenen Zuor
 - [CFTC TFF Explanatory Notes](https://www.cftc.gov/idc/groups/public/@commitmentsoftraders/documents/file/tfmexplanatorynotes.pdf)
 - [CFTC Public Reporting Environment](https://publicreporting.cftc.gov/stories/s/r4w3-av2u)
 - [Socrata: App-Tokens und tokenfreie Zugriffe](https://dev.socrata.com/docs/app-tokens.html)
+
+## Erweiterung: Analyse-Arbeitsbereich
+
+Zusätzlich zur Datenbasis wurden Radar, Screener, historische Stichtagsanalysen,
+Perzentile, COT-Spannenindex, relative Wochenvergleiche, normalisierte Marktvergleiche,
+lokale Watchlist/Ansichten/Regeln sowie Exporte ergänzt. Die Definitionen und Grenzen
+stehen in [WORKSPACE_GUIDE.md](WORKSPACE_GUIDE.md).
+
+23 Python-Tests und sechs Node-Tests prüfen Import und Formeln. 112 Vergleiche mit
+echten Historien und historischen Stichtagen zeigen Übereinstimmung zwischen der
+Python-Buildberechnung und dem JavaScript-Browsermodul. Bedienprüfungen decken
+insbesondere historische Datengrenzen, Exporte, URL-Wiederherstellung, Browser-Speicher,
+Filter/Pagination und sichere Darstellung importierter Beschriftungen ab.

@@ -42,15 +42,16 @@ function formatChange(value) {
 }
 
 function applyColor(element, value) {
-    if (value > 0) element.style.color = "#22c55e";
-    else if (value < 0) element.style.color = "#ef4444";
-    else element.style.color = "#e5e7eb";
+    if (value > 0) element.style.color = "var(--positive)";
+    else if (value < 0) element.style.color = "var(--negative)";
+    else element.style.color = "var(--text)";
 }
 
 function populateDropdowns(data) {
     const assetSelect = document.getElementById("assetSelect");
     const assets = [...new Set(data.map(d => d.market_and_exchange_names))].sort();
 
+    assetSelect.replaceChildren();
     assets.forEach(a => {
         const option = document.createElement("option");
         option.value = a;
@@ -78,19 +79,23 @@ function plotData(data, asset) {
     );
 
     const traces = [
-        { x: dates, y: commercial, type: 'scatter', mode: 'lines', name: 'Comm', line: { color: '#3b82f6' } },
-        { x: dates, y: noncommercial, type: 'scatter', mode: 'lines', name: 'Non-Comm', line: { color: '#f97316' } },
-        { x: dates, y: nonreportable, type: 'scatter', mode: 'lines', name: 'Retail', line: { color: '#22c55e' } }
+        { x: dates, y: commercial, type: 'scatter', mode: 'lines', name: 'Commercials', line: { color: '#ffb98b', width: 2 } },
+        { x: dates, y: noncommercial, type: 'scatter', mode: 'lines', name: 'Non-Commercials', line: { color: '#c197ff', width: 2 } },
+        { x: dates, y: nonreportable, type: 'scatter', mode: 'lines', name: 'Retail', line: { color: '#8ed9c4', width: 2 } }
     ];
 
     Plotly.newPlot('chartDiv', traces, {
-        paper_bgcolor: '#111827',
-        plot_bgcolor: '#111827',
-        font: { color: '#e5e7eb' },
+        paper_bgcolor: '#1b1825',
+        plot_bgcolor: '#1b1825',
+        font: { color: '#aaa3ba', family: '-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif', size: 10 },
+        margin: { l: window.innerWidth < 600 ? 50 : 76, r: 20, t: 55, b: 48 },
+        legend: { orientation: 'h', x: 0, y: 1.13, font: { size: 10 } },
+        hoverlabel: { bgcolor: '#211d2d', bordercolor: '#524461', font: { color: '#eeeaf5' } },
+        xaxis: { gridcolor: '#ffffff06', linecolor: '#ffffff10', zeroline: false, nticks: window.innerWidth < 600 ? 4 : 8 },
         hovermode: 'x unified',
-        yaxis: { title: 'Net positions (contracts)' },
+        yaxis: { gridcolor: '#ffffff08', zerolinecolor: '#c197ff33', tickformat: '~s', fixedrange: true },
         autosize: true
-    }, { responsive: true });
+    }, { responsive: true, displayModeBar: false, scrollZoom: false });
 
     // KPI LOGIC
     const last = filtered.length - 1;
@@ -127,15 +132,14 @@ function plotData(data, asset) {
     retailChEl.textContent = formatChange(changes.retail);
 
     // Colors
-    applyColor(commEl, values.comm);
-    applyColor(nonCommEl, values.nonComm);
-    applyColor(retailEl, values.retail);
+    // Keep headline values neutral; reserve directional colors for changes.
 
     applyColor(commChEl, changes.comm);
     applyColor(nonCommChEl, changes.nonComm);
     applyColor(retailChEl, changes.retail);
 
     document.getElementById("lastUpdate").textContent = dates[last];
+    document.getElementById("selectedMarket").textContent = asset;
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -160,6 +164,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         status.textContent = "Net positions in contracts · Changes compared with the previous report";
     } catch (error) {
         console.error(error);
+        status.dataset.state = "error";
         status.textContent = "Unable to load the dashboard. Please try again later.";
     }
 });

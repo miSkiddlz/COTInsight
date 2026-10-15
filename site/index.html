@@ -1,174 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>COT Dashboard</title>
-
-<script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
-<script src="./charts.js" defer></script>
-
-<style>
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: #0f172a;
-    color: #e5e7eb;
-    margin: 0;
-}
-
-.container {
-    max-width: 1100px;
-    margin: 40px auto;
-    padding: 20px;
-}
-
-h1 {
-    font-size: 28px;
-    margin-bottom: 5px;
-}
-
-.subtitle {
-    color: #9ca3af;
-    margin-bottom: 20px;
-}
-
-.controls {
-    margin-bottom: 20px;
-}
-
-select {
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: none;
-    background: #1e293b;
-    color: white;
-}
-
-/* KPI */
-.kpi-row {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.kpi {
-    flex: 1;
-    background: #111827;
-    padding: 15px;
-    border-radius: 12px;
-}
-
-.kpi-title {
-    font-size: 12px;
-    color: #9ca3af;
-}
-
-.kpi-main {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.kpi-value {
-    font-size: 20px;
-    font-weight: bold;
-}
-
-.kpi-change {
-    font-size: 13px;
-    opacity: 0.9;
-}
-
-/* Chart */
-.card {
-    background: #111827;
-    padding: 20px;
-    border-radius: 16px;
-}
-
-/* Footer */
-.footer-bar {
-    margin-top: 20px;
-    padding: 15px;
-    background: #111827;
-    border-radius: 12px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    color: #9ca3af;
-}
-
-.footer-bar a {
-    color: #3b82f6;
-    text-decoration: none;
-}
-@media (max-width: 700px) {
-    .container { margin: 10px auto; padding: 12px; }
-    .kpi-row { flex-direction: column; }
-    .footer-bar { gap: 12px; flex-wrap: wrap; }
-}
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#14121c">
+    <meta name="description" content="Explore futures market positioning with COTInsight. Weekly CFTC data, net positions and an interactive market view.">
+    <title>COTInsight — A clearer view of market positioning</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./styles.css">
+    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js" defer></script>
+    <script src="./charts.js" defer></script>
 </head>
-
 <body>
+    <a class="skip-link" href="#dashboard">Skip to dashboard</a>
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+    <div class="container">
+        <header class="topbar">
+            <a class="brand" href="./" aria-label="COTInsight home">
+                <svg class="brand-mark" viewBox="0 0 36 36" fill="none" aria-hidden="true"><rect x="1" y="1" width="34" height="34" rx="11" stroke="currentColor" stroke-opacity=".3"/><path d="M9 24V18M15 24V12M21 24V16M27 24V9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                <span>COT<span class="brand-light">Insight</span><span class="brand-dot">.</span></span>
+            </a>
+            <nav aria-label="Main navigation">
+                <a class="nav-active" href="#dashboard">Dashboard</a>
+                <a href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm" target="_blank" rel="noopener noreferrer">CFTC reports <span aria-hidden="true">↗</span></a>
+            </nav>
+        </header>
 
-<div class="container">
+        <main>
+            <section class="hero" aria-labelledby="hero-title">
+                <div class="eyebrow"><span class="small-line"></span> THE POSITIONING PERSPECTIVE</div>
+                <h1 id="hero-title">Behind every market,<br><span class="gradient-text">there’s a position.</span></h1>
+                <p class="hero-copy">A clearer view of futures positioning.<br>Explore the Commitments of Traders, one market at a time.</p>
+                <div class="hero-tags"><span><i aria-hidden="true"></i> Official CFTC data</span><span>Weekly reports</span><span>Three calendar years</span></div>
+                <div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><div class="art-core">C<span>↗</span></div><span class="art-label">A DIFFERENT PERSPECTIVE</span></div>
+            </section>
 
-    <h1>COT Dashboard</h1>
-    <p class="subtitle">Commitment of Traders Positioning Tool</p>
+            <section id="dashboard" class="dashboard" aria-labelledby="dashboard-title">
+                <div class="section-heading">
+                    <div><p class="eyebrow">01 / MARKET OVERVIEW</p><h2 id="dashboard-title">Read the positioning.</h2></div>
+                    <div class="controls"><label for="assetSelect">SELECT MARKET</label><select id="assetSelect" disabled><option value="">Loading markets…</option></select></div>
+                </div>
+                <p id="dataStatus" class="data-status" role="status">Loading COT data…</p>
 
-    <p id="dataStatus" role="status">Loading COT data…</p>
+                <div class="kpi-row">
+                    <article class="kpi kpi-commercial"><div class="kpi-top"><h3 class="kpi-title"><span class="series-dot"></span>Commercials</h3><span class="card-index">01</span></div><p class="kpi-caption">NET POSITION / CONTRACTS</p><div class="kpi-value" id="kpiComm">—</div><div class="kpi-bottom"><span class="kpi-change" id="kpiCommChange">—</span><span class="comparison">vs. previous report</span></div></article>
+                    <article class="kpi kpi-noncommercial"><div class="kpi-top"><h3 class="kpi-title"><span class="series-dot"></span>Non-Commercials</h3><span class="card-index">02</span></div><p class="kpi-caption">NET POSITION / CONTRACTS</p><div class="kpi-value" id="kpiNonComm">—</div><div class="kpi-bottom"><span class="kpi-change" id="kpiNonCommChange">—</span><span class="comparison">vs. previous report</span></div></article>
+                    <article class="kpi kpi-retail"><div class="kpi-top"><h3 class="kpi-title"><span class="series-dot"></span>Retail</h3><span class="card-index">03</span></div><p class="kpi-caption">NET POSITION / CONTRACTS</p><div class="kpi-value" id="kpiRetail">—</div><div class="kpi-bottom"><span class="kpi-change" id="kpiRetailChange">—</span><span class="comparison">vs. previous report</span></div></article>
+                </div>
 
-    <div class="controls">
-        <label for="assetSelect">Asset:</label>
-        <select id="assetSelect" disabled></select>
+                <article class="chart-card" aria-labelledby="chart-title">
+                    <div class="chart-heading"><div><p class="eyebrow">THE BIGGER PICTURE</p><h3 id="chart-title">Positioning over time</h3><p id="selectedMarket" class="selected-market">Select a market to explore its history.</p></div><span class="chart-badge">NET CONTRACTS</span></div>
+                    <div id="chartDiv" role="region" aria-label="Interactive net position history chart"></div>
+                    <div class="chart-footer"><span><span class="source-dot"></span> Source: CFTC · Legacy Futures Only</span><span>Report date <strong id="lastUpdate">—</strong></span></div>
+                </article>
+                <p class="data-note">Net positions = long − short. “Retail” represents nonreportable positions, which are not exclusively retail traders.</p>
+            </section>
+        </main>
+        <footer class="footer-bar"><a class="footer-brand" href="./">COTInsight<span>.</span></a><span>A little more perspective on the market.</span><a href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm" target="_blank" rel="noopener noreferrer">Explore the source <span aria-hidden="true">↗</span></a></footer>
     </div>
-
-    <!-- KPI -->
-    <div class="kpi-row">
-
-        <div class="kpi">
-            <div class="kpi-title">Commercials</div>
-            <div class="kpi-main">
-                <div class="kpi-value" id="kpiComm">-</div>
-                <div class="kpi-change" id="kpiCommChange"></div>
-            </div>
-        </div>
-
-        <div class="kpi">
-            <div class="kpi-title">Non-Commercials</div>
-            <div class="kpi-main">
-                <div class="kpi-value" id="kpiNonComm">-</div>
-                <div class="kpi-change" id="kpiNonCommChange"></div>
-            </div>
-        </div>
-
-        <div class="kpi">
-            <div class="kpi-title">Retail</div>
-            <div class="kpi-main">
-                <div class="kpi-value" id="kpiRetail">-</div>
-                <div class="kpi-change" id="kpiRetailChange"></div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Chart -->
-    <div class="card">
-        <div id="chartDiv" style="width:100%;height:600px;"></div>
-    </div>
-
-    <!-- Footer -->
-    <div class="footer-bar">
-        <a href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm" target="_blank" rel="noopener noreferrer">
-            Latest COT Report
-        </a>
-
-        <span>Report date: <span id="lastUpdate">-</span></span>
-    </div>
-
-</div>
-
 </body>
 </html>

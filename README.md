@@ -1,5 +1,7 @@
 # COTInsight
 
+**Website: https://miskiddlz.github.io/COTInsight/**
+
 Interactive CFTC Commitments of Traders dashboard, hosted on **GitHub Pages**.
 The browser loads static HTML, JavaScript and JSON. There is no application
 server, Docker setup or server wake-up time. Plotly is loaded from its CDN.
@@ -15,7 +17,7 @@ server, Docker setup or server wake-up time. Plotly is loaded from its CDN.
 4. Änderungen auf `main` hochladen. Falls der Upload schon vorher erfolgt ist:
    **Actions → Update data and deploy website → Run workflow → main**.
 5. Nach erfolgreichem Durchlauf steht die Adresse unter **Settings → Pages**:
-   `https://DEIN-GITHUB-NAME.github.io/COTInsight/` (bei anderem Repositorynamen entsprechend anders).
+   **https://miskiddlz.github.io/COTInsight/**.
 6. Erst wenn die neue Seite funktioniert, den alten Render-Service im
    Render-Dashboard löschen und gegebenenfalls die GitHub-Verknüpfung entfernen.
    Das lässt sich nicht allein durch Änderungen an diesen Projektdateien erledigen.
@@ -69,3 +71,11 @@ python -m unittest discover -s tests -v
 Positionen werden in **Kontrakten** angezeigt. Nonreportable-Positionen sind
 keine exakte Abgrenzung von Privatanlegern; die bestehende Bezeichnung „Retail“
 ist nur eine vereinfachte Beschriftung.
+
+## Design
+
+Zentrale Farben, Flächen, Abstände und Rundungen liegen als CSS-Variablen in
+`site/styles.css`. Pfirsich (`#ffb98b`), Lavendel (`#c197ff`) und Mint
+(`#8ed9c4`) auf dunklem Pflaumenton (`#14121c`) bilden das gemeinsame Schema.
+Neue Bereiche sollen die vorhandenen Karten-, Überschriften- und Steuerungsstile
+weiterverwenden. Die Titelanimation berücksichtigt reduzierte Bewegung im System.

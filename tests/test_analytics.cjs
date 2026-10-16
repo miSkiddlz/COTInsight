@@ -1,6 +1,6 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const a=require('../site/analytics.js');
+const a=require('../site/assets/js/analytics.js');
 const records=Array.from({length:53},(_,i)=>({date:a.shift('2026-10-06',-(52-i)*7),unit:'A',open_interest:1000,groups:{test:{long:100+i,short:100,net:i,spreading:null}}}));
 test('calendar windows and empirical midranks',()=>{const w=a.summarize(records,['test']).groups.test.windows['52'];assert.equal(w.n,52);assert.equal(w.min,1);assert.equal(w.cot_index,100);assert.equal(w.percentile,100*51.5/52);});
 test('ties, flat ranges and minimum coverage',()=>{assert.equal(a.rankMetrics(Array(52).fill(5),5,52).percentile,50);assert.equal(a.rankMetrics(Array(52).fill(5),5,52).cot_index,null);assert.equal(a.rankMetrics(Array(41).fill(5),5,52).percentile,null);});

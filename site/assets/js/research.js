@@ -26,10 +26,13 @@ function renderMarketResearch(series, summary) {
   marketResearch.visible = COTMath.range(marketResearch.ranks.get(key), summary.date, el('rangeSelect').value === 'all' ? null : Number(el('rangeSelect').value));
   const rows = marketResearch.visible;
   const valid = rows.filter((r) => finite(r.percentile));
-  el('rankContext').textContent = `${activeMarket.name} · ${group.label} · rolling ${lookback()}-calendar-week net-position percentile · ${rows[0].date} — ${rows.at(-1).date}. Chart period changes the display, not the calculation window.`;
+  el('rankContext').textContent = `${group.label} · ${lookback()}W window · ${rows[0].date} — ${rows.at(-1).date}`;
   el('rankStatus').textContent = valid.length
     ? `${valid.length} of ${rows.length} displayed observations have sufficient comparable history. Last available percentile: ${pct(valid.at(-1).percentile)} on ${valid.at(-1).date}.`
     : `No displayed observation has sufficient comparable history for the ${lookback()}W percentile. Try a shorter historical window or a different market.`;
+  const coverage = el('rankStatus').closest('details');
+  if (!valid.length) { coverage.open = true; coverage.dataset.autoOpen = 'true'; }
+  else if (coverage.dataset.autoOpen) { coverage.open = false; delete coverage.dataset.autoOpen; }
   el('rankBody').replaceChildren();
   for (const record of rows.slice().reverse()) {
     const tr = node('tr'), th = node('th', '', record.date); th.scope = 'row'; tr.appendChild(th);
@@ -40,10 +43,10 @@ function renderMarketResearch(series, summary) {
   el('olderReport').disabled = index >= select.options.length - 1;
   el('newerReport').disabled = index <= 0;
   el('latestReport').disabled = index <= 0;
-  el('observationPosition').textContent = `${summary.date} · observation ${select.options.length - index} of ${select.options.length}${index === 0 ? ' · latest' : ''}`;
+  el('observationPosition').textContent = index === 0 ? 'Latest report' : `Historical · ${summary.date}`;
   el('rankExport').disabled = false;
   el('weeklyExport').disabled = false;
-  el('weeklyContext').textContent = `${activeMarket.name} · as of ${summary.date} · ${summary.unit}. Net / OI uses the open interest of each respective date.`;
+  el('weeklyContext').textContent = `As of ${summary.date} · net contracts and change in net / OI`;
   for (const weeks of [1, 4, 13]) {
     const th = el(`weeklyHead${weeks}`); th.replaceChildren(node('span', '', `${weeks}W change`), node('small', 'weekly-date', `vs. ${COTMath.shift(summary.date, -weeks * 7)}`));
   }
@@ -65,7 +68,7 @@ function renderMarketResearch(series, summary) {
 }
 
 async function drawRankHistory() {
-  if (!marketResearch.visible.length || workspaceState.activeSection !== 'dashboard' || typeof Plotly === 'undefined') return;
+  if (!marketResearch.visible.length || workspaceState.activeSection !== 'dashboard' || workspaceState.activePanel !== 'history' || typeof Plotly === 'undefined') return;
   const rows = marketResearch.visible, points = [];
   rows.forEach((row, index) => {
     // Explicit gaps at missing weeks and changed unit descriptions.
@@ -95,7 +98,10 @@ async function drawRankHistory() {
       uirevision: `${activeReport.id}/${activeMarket.code}/${focusID()}/${lookback()}/${el('rangeSelect').value}/${el('observationSelect').value}`,
     }, {responsive: true, displayModeBar: false, scrollZoom: false});
   } catch {
-    if (version === marketResearch.plotVersion) el('rankStatus').textContent = 'Percentile chart could not be displayed. The data table and CSV remain available.';
+    if (version === marketResearch.plotVersion) {
+      el('rankStatus').textContent = 'Percentile chart could not be displayed. The data table and CSV remain available.';
+      el('rankStatus').closest('details').open = true;
+    }
   }
 }
 

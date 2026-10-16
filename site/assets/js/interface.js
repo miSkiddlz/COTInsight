@@ -12,11 +12,11 @@ function showSection(id, options={}) {
   if(options.push){const url=new URL(window.location.href);url.hash=id;window.history.pushState(null,'',url);}
   updateURL();
   if(options.scroll && typeof window.scrollTo==='function') window.scrollTo({top:0,behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
-  const afterLayout=window.requestAnimationFrame||((fn)=>setTimeout(fn,0));
-  if(id==='dashboard'&&history&&activeMarket)afterLayout(()=>{Promise.resolve(drawChart()).catch(()=>notice('Chart could not be resized. Try opening Analysis again.'));renderComparison();drawRankHistory();});
+  if(id==='dashboard') scheduleAnalysisChart();
 }
-function locationView(){const p=new URLSearchParams(window.location.search);return safeView({report:p.get('report')||'legacy_fut',market:p.get('market')||'088691',metric:p.get('metric'),range:p.get('range'),scale:p.get('scale'),group:p.get('group'),lookback:p.get('lookback'),asof:p.get('asof'),oi:p.get('oi')==='1',compare:(p.get('compare')||'').split(',')});}
+function locationView(){const p=new URLSearchParams(window.location.search);return safeView({report:p.get('report')||'legacy_fut',market:p.get('market')||'088691',panel:p.get('panel'),metric:p.get('metric'),range:p.get('range'),scale:p.get('scale'),group:p.get('group'),lookback:p.get('lookback'),asof:p.get('asof'),oi:p.get('oi')==='1',compare:(p.get('compare')||'').split(',')});}
 function initializeNavigation(){
+  initializeAnalysisPanels();
   const initial=window.location.hash.slice(1)|| (new URLSearchParams(window.location.search).has('market')?'dashboard':'radar');
   showSection(initial);
   for(const link of document.querySelectorAll('.topbar nav a[href^="#"], .skip-link'))link.addEventListener('click',event=>{event.preventDefault();showSection(link.getAttribute('href').slice(1),{push:true,scroll:true});});
@@ -71,4 +71,44 @@ function initializeResearchControls(){
   el('screenView').addEventListener('change',()=>{workspaceState.storage.preferences={screenView:el('screenView').value};persist();renderResearch();});
   el('compareSearch').addEventListener('input',renderComparePicker);
   el('compareAdd').addEventListener('click',()=>{const option=Array.from(el('compareSelect').options).find(o=>o.value===el('compareCandidate').value);if(!option||el('compareSelect').selectedOptions.length>=3)return;option.selected=true;el('compareSearch').value='';renderComparePicker();renderComparison();});
+}
+
+
+const ANALYSIS_PANELS = ['overview', 'history', 'compare', 'data'];
+function scheduleAnalysisChart() {
+  if (!history || !activeMarket || workspaceState.activeSection !== 'dashboard') return;
+  const afterLayout = window.requestAnimationFrame || ((fn) => setTimeout(fn, 0));
+  afterLayout(() => {
+    if (workspaceState.activeSection !== 'dashboard') return;
+    if (workspaceState.activePanel === 'overview') Promise.resolve(drawChart()).catch(() => notice('Chart could not be displayed. Try reopening Overview.'));
+    if (workspaceState.activePanel === 'history') drawRankHistory();
+    if (workspaceState.activePanel === 'compare') renderComparison();
+  });
+}
+function showAnalysisPanel(id, options = {}) {
+  workspaceState.activePanel = ANALYSIS_PANELS.includes(id) ? id : 'overview';
+  for (const panel of document.querySelectorAll('[data-analysis-panel]')) panel.hidden = panel.dataset.analysisPanel !== workspaceState.activePanel;
+  for (const tab of document.querySelectorAll('[data-analysis-tab]')) {
+    const selected = tab.dataset.analysisTab === workspaceState.activePanel;
+    tab.setAttribute('aria-selected', String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+    if (selected && options.focus) tab.focus();
+  }
+  if (options.syncURL !== false) updateURL();
+  scheduleAnalysisChart();
+}
+function initializeAnalysisPanels() {
+  showAnalysisPanel(workspaceState.activePanel, {syncURL: false});
+  for (const tab of document.querySelectorAll('[data-analysis-tab]')) {
+    tab.addEventListener('click', () => showAnalysisPanel(tab.dataset.analysisTab));
+    tab.addEventListener('keydown', (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      let index = ANALYSIS_PANELS.indexOf(tab.dataset.analysisTab);
+      if (event.key === 'Home') index = 0;
+      else if (event.key === 'End') index = ANALYSIS_PANELS.length - 1;
+      else index = (index + (event.key === 'ArrowRight' ? 1 : -1) + ANALYSIS_PANELS.length) % ANALYSIS_PANELS.length;
+      showAnalysisPanel(ANALYSIS_PANELS[index], {focus: true});
+    });
+  }
 }

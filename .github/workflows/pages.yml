@@ -33,7 +33,7 @@ jobs:
       - name: Test data processing
         run: python -m unittest discover -s tests -v
       - name: Download and validate official CFTC data
-        run: python scripts/fetch_cot_api.py
+        run: python scripts/fetch_cot_data.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:

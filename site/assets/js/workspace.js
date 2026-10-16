@@ -12,6 +12,7 @@ const workspaceState = {
   pendingCompare: [],
   page: 0,
   activeSection: "radar",
+  activePanel: "overview",
   compareController: null,
   snapshots: new Map(),
   researchVersion: 0,
@@ -46,6 +47,7 @@ function safeView(input) {
   return {
     report: report.id,
     market: input.market,
+    panel: choose(input.panel, ["overview", "history", "compare", "data"], "overview"),
     metric: choose(input.metric, ["net", "long", "short", "spreading"], "net"),
     range: choose(input.range, ["13", "26", "52", "104", "all"], "52"),
     scale: choose(input.scale, ["contracts", "share"], "contracts"),
@@ -149,6 +151,7 @@ function currentView() {
   return safeView({
     report: activeReport.id,
     market: activeMarket.code,
+    panel: workspaceState.activePanel,
     metric: el("metricSelect").value,
     range: el("rangeSelect").value,
     scale: el("scaleSelect").value,
@@ -179,6 +182,7 @@ function updateURL() {
     "lookback",
   ])
     url.searchParams.set(key, view[key]);
+  if (view.panel !== "overview") url.searchParams.set("panel", view.panel);
   if (view.asof) url.searchParams.set("asof", view.asof);
   if (view.oi) url.searchParams.set("oi", "1");
   if (view.compare.length)
@@ -190,6 +194,7 @@ function updateURL() {
 function applyView(view) {
   if (!view) return;
   el("reportSelect").value = view.report;
+  showAnalysisPanel(view.panel, {syncURL: false});
   for (const [key, id] of [
     ["metric", "metricSelect"],
     ["range", "rangeSelect"],
@@ -377,7 +382,7 @@ function renderWorkspaceMarket(series, summary) {
     `${window.n} valid observations; ${window.required} required in the ${lookback()}-calendar-week window. Comparable unit segment begins ${summary.comparable_since}. ${window.n < window.required ? "Insufficient comparable history: percentile and COT index are withheld." : window.min === window.max ? "Flat net-position range: COT index is undefined." : "Historical extremes describe positioning, not a future price reversal."}`;
   el("historicalBanner").hidden = el("observationSelect").selectedIndex === 0;
   el("historicalBanner").textContent =
-    `Historical analysis as of ${summary.date}. Market cards, statistics and charts exclude later observations. Radar, screener, watchlist and local rules continue to use the latest dataset.`;
+    `Historical view · ${summary.date}. Radar, Screener and Watchlist still use the latest data.`;
   el("watchToggle").textContent = isWatched(activeReport.id, activeMarket.code)
     ? "★ In watchlist · remove"
     : "☆ Add to watchlist";
@@ -493,7 +498,7 @@ async function renderResearch() {
           row.market,
           report,
           pct(row.window.percentile),
-          `${lookback()}W percentile · n=${row.window.n}`,
+          `${lookback()}W percentile`,
         ),
       );
     for (const row of oi)
@@ -723,7 +728,7 @@ async function renderComparison() {
       };
     });
     el("compareChart").hidden = false;
-    await Plotly.react(
+    if (workspaceState.activeSection === "dashboard" && workspaceState.activePanel === "compare") await Plotly.react(
       "compareChart",
       traces,
       {
@@ -745,7 +750,7 @@ async function renderComparison() {
     );
     if (version !== workspaceState.compareVersion) return;
     el("compareStatus").textContent =
-      `${report.groups.find((g) => g.id === group).label} · net % of open interest · through ${asof}. Each series retains its own available dates; missing values are not filled. Relative positioning is not equal economic exposure.`;
+      `${report.groups.find((g) => g.id === group).label} · net / OI · ${asof}`;
   } catch (error) {
     if (version !== workspaceState.compareVersion || error.name === "AbortError") return;
     console.error(error);
@@ -936,6 +941,7 @@ function initializeWorkspace() {
     initial = safeView({
       report: params.get("report") || "legacy_fut",
       market: params.get("market") || "088691",
+      panel: params.get("panel"),
       metric: params.get("metric"),
       range: params.get("range"),
       scale: params.get("scale"),
@@ -946,6 +952,7 @@ function initializeWorkspace() {
       compare: (params.get("compare") || "").split(","),
     });
   if (initial) {
+    workspaceState.activePanel = initial.panel;
     el("reportSelect").value = initial.report;
     workspaceState.initialMarket = initial.market;
     workspaceState.pendingAsOf = initial.asof;

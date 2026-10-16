@@ -9,7 +9,7 @@ from unittest.mock import patch
 from urllib.error import HTTPError, URLError
 import zipfile
 
-from scripts import fetch_cot_api as cot
+from scripts import fetch_cot_data as cot
 
 
 def fixture(report=cot.REPORTS[0], day="2026-01-06", code="001602", name="TEST MARKET - TEST EXCHANGE"):

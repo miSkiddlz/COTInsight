@@ -223,73 +223,6 @@ h2 {
   background: var(--mint);
   border-radius: 50%;
 }
-.hero-art {
-  position: absolute;
-  right: 27px;
-  top: 44px;
-  width: 310px;
-  height: 310px;
-  display: grid;
-  place-items: center;
-}
-.orbit {
-  position: absolute;
-  width: 240px;
-  height: 240px;
-  border: 1px solid #c197ff2a;
-  border-radius: 50%;
-  transform: rotate(-28deg) scaleY(0.72);
-}
-.orbit-two {
-  width: 290px;
-  height: 290px;
-  transform: rotate(32deg) scaleY(0.72);
-  border-color: #ffb98b24;
-}
-.orbit-three {
-  width: 175px;
-  height: 175px;
-  transform: rotate(70deg) scaleY(0.72);
-}
-.orbit-one:after {
-  content: "";
-  position: absolute;
-  top: 22px;
-  left: 31px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--lavender);
-  box-shadow: 0 0 20px #c197ff66;
-}
-.art-core {
-  height: 100px;
-  width: 100px;
-  display: grid;
-  place-items: center;
-  border: 1px solid #ffb98b33;
-  border-radius: 28px;
-  background: linear-gradient(135deg, #ffb98b12, #c197ff12);
-  font-size: 50px;
-  font-weight: 300;
-  color: var(--peach);
-  transform: rotate(-10deg);
-  box-shadow: 0 0 80px #c197ff0b;
-}
-.art-core span {
-  position: absolute;
-  font-size: 24px;
-  right: 10px;
-  top: 4px;
-  color: var(--lavender);
-}
-.art-label {
-  position: absolute;
-  bottom: 0;
-  font-size: 8px;
-  letter-spacing: 3px;
-  color: #8c819e;
-}
 .dashboard {
   border-top: 1px solid var(--border);
   padding-top: 32px;
@@ -537,11 +470,6 @@ option {
   }
 }
 @media (max-width: 1000px) {
-  .hero-art {
-    right: -45px;
-    opacity: 0.65;
-    transform: scale(0.8);
-  }
   h1 {
     font-size: 50px;
   }
@@ -577,9 +505,6 @@ option {
   }
   .hero {
     padding: 42px 0 35px;
-  }
-  .hero-art {
-    display: none;
   }
   h1 {
     font-size: clamp(35px, 7vw, 50px);
@@ -1159,13 +1084,6 @@ input:focus-visible,
   font-size: 11px;
   line-height: 1.8;
 }
-.card-context {
-  font-size: 9px;
-  color: var(--muted);
-  border-top: 1px solid var(--border);
-  padding-top: 10px;
-  margin-bottom: 0;
-}
 .insight-panel,
 .comparison-panel {
   margin: 22px 0;
@@ -1547,9 +1465,6 @@ input:focus-visible,
   .hero-tags {
     font-size: 8px;
   }
-  .card-context {
-    padding-top: 9px;
-  }
   #compareChart {
     height: 480px;
   }
@@ -1627,4 +1542,34 @@ input:focus-visible,
   .rank-panel, .weekly-panel { padding: 16px; }
   .rank-panel .table-heading, .weekly-panel .table-heading { flex-wrap: wrap; gap: 12px; }
   .observation-navigation span { order: 4; flex-basis: 100%; }
+}
+/* A quiet overview; deeper research stays one tab away. */
+[data-analysis-panel][hidden] { display: none !important; }
+.hero { padding: 40px 0 32px; }
+.hero h1 { margin-top: 0; }
+.hero-tags { margin-top: 18px; }
+.workspace-tools { justify-content: flex-end; margin-top: 6px; }
+.context-help { color: var(--muted); font-size: 11px; margin: 12px 0; }
+.context-help > summary { cursor: pointer; width: fit-content; padding: 4px 0; }
+.context-help > p { max-width: 85ch; margin: 10px 0; }
+.context-help[open] > summary { color: var(--peach); }
+.workspace-notice:empty { display: none; }
+.analysis-tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--border); margin: 24px 0; padding-bottom: 10px; }
+.analysis-tabs button { background: transparent; border: 1px solid transparent; color: var(--muted); border-radius: 9px; padding: 9px 18px; cursor: pointer; font-size: 12px; }
+.analysis-tabs button[aria-selected="true"] { color: var(--text); background: var(--surface-raised); border-color: var(--border); }
+.analysis-tabs button:hover { color: var(--peach); }
+.analysis-tabs button:focus-visible, .context-help summary:focus-visible { outline: 2px solid var(--peach); outline-offset: 3px; }
+[role="tabpanel"]:focus-visible { outline: 1px solid var(--peach); outline-offset: 8px; }
+#panel-overview .kpi-row { margin-top: 0; }
+#panel-history > :first-child, #panel-data > :first-child, #panel-compare > :first-child { margin-top: 0; }
+#panel-overview .chart-card { margin-bottom: 0; }
+#panel-data .market-facts { margin-top: 0; }
+#rankContext { margin-bottom: 12px; }
+#rankStatus { font-size: 11px; }
+.observation-navigation { margin-bottom: 8px; }
+@media (max-width: 600px) {
+  .hero { padding: 30px 0 24px; }
+  .hero h1 { font-size: clamp(34px, 7.5vw, 46px); letter-spacing: -1.5px; }
+  .analysis-tabs { gap: 2px; }
+  .analysis-tabs button { padding: 9px 12px; flex: 1; }
 }

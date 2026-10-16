@@ -1,22 +1,17 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#14121c" />
-    <meta
-      name="description"
-      content="Explore futures market positioning with COTInsight. Weekly CFTC data, net positions and an interactive market view."
-    />
-    <title>COTInsight — A clearer view of market positioning</title>
-    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=workspace-3" />
-    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js" defer></script>
-    <script src="./analytics.js?v=workspace-3" defer></script>
-    <script src="./charts.js?v=workspace-3" defer></script>
-    <script src="./workspace.js?v=workspace-3" defer></script>
-    <script src="./interface.js?v=workspace-3" defer></script>
-    <script src="./research.js?v=workspace-3" defer></script>
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#14121c">
+    <meta name="description" content="Explore futures market positioning with COTInsight. Weekly CFTC data, net positions and an interactive market view.">
+    <title>COTInsight</title>
+    <link rel="icon" href="./assets/images/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./assets/css/styles.css?v=layout-1">
+    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js" defer=""></script>
+    <script src="./assets/js/analytics.js?v=layout-1" defer=""></script>
+    <script src="./assets/js/charts.js?v=layout-1" defer=""></script>
+    <script src="./assets/js/workspace.js?v=layout-1" defer=""></script>
+    <script src="./assets/js/interface.js?v=layout-1" defer=""></script>
+    <script src="./assets/js/research.js?v=layout-1" defer=""></script>
   </head>
   <body>
     <a class="skip-link" href="#dashboard">Skip to dashboard</a>
@@ -25,126 +20,73 @@
     <div class="container">
       <header class="topbar">
         <a class="brand" href="./" aria-label="COTInsight home">
-          <svg
-            class="brand-mark"
-            viewBox="0 0 36 36"
-            fill="none"
-            aria-hidden="true"
-          >
-            <rect
-              x="1"
-              y="1"
-              width="34"
-              height="34"
-              rx="11"
-              stroke="currentColor"
-              stroke-opacity=".3"
-            />
-            <path
-              d="M9 24V18M15 24V12M21 24V16M27 24V9"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-            />
+          <svg class="brand-mark" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+            <rect x="1" y="1" width="34" height="34" rx="11" stroke="currentColor" stroke-opacity=".3"></rect>
+            <path d="M9 24V18M15 24V12M21 24V16M27 24V9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"></path>
           </svg>
-          <span
-            >COT<span class="brand-light">Insight</span
-            ><span class="brand-dot">.</span></span
-          >
+          <span>COT<span class="brand-light">Insight</span><span class="brand-dot">.</span></span>
         </a>
         <nav aria-label="Main navigation">
-          <a class="nav-active" href="#radar">Radar</a
-          ><a href="#dashboard">Analysis</a><a href="#screener">Screener</a><a href="#watchlist">Watchlist</a>
-          <a
-            href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm"
-            target="_blank"
-            rel="noopener noreferrer"
-            >CFTC reports <span aria-hidden="true">↗</span></a
-          >
+          <a class="nav-active" href="#radar">Radar</a><a href="#dashboard">Analysis</a><a href="#screener">Screener</a><a href="#watchlist">Watchlist</a>
+          <a href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm" target="_blank" rel="noopener noreferrer">CFTC reports <span aria-hidden="true">↗</span></a>
         </nav>
       </header>
 
       <main>
         <section class="hero" aria-labelledby="hero-title">
-          <div class="eyebrow">
-            <span class="small-line"></span> THE POSITIONING WORKSPACE
-          </div>
+          
           <h1 id="hero-title">
-            Behind every market,<br /><span class="gradient-text"
-              >there’s a position.</span
-            >
+            Behind every market,<br><span class="gradient-text">there’s a position.</span>
           </h1>
-          <p class="hero-copy">
-            A clearer view of futures positioning.<br />Explore the Commitments
-            of Traders, one market at a time.
-          </p>
+          <p class="hero-copy">Explore weekly futures positioning from the CFTC.</p>
           <div class="hero-tags">
-            <span><i aria-hidden="true"></i> Official CFTC data</span
-            ><span>Weekly reports</span
-            ><span id="dataCoverage">All 7 COT report types</span>
+            <span><i aria-hidden="true"></i> Official CFTC data</span><span id="dataCoverage">All 7 COT report types</span>
           </div>
-          <div class="hero-art" aria-hidden="true">
-            <div class="orbit orbit-one"></div>
-            <div class="orbit orbit-two"></div>
-            <div class="orbit orbit-three"></div>
-            <div class="art-core">C<span>↗</span></div>
-            <span class="art-label">A DIFFERENT PERSPECTIVE</span>
-          </div>
+          
         </section>
 
         <div class="global-controls">
           <div class="controls">
-            <label for="reportSelect">REPORT TYPE</label
-            ><select id="reportSelect" disabled>
+            <label for="reportSelect">REPORT TYPE</label><select id="reportSelect" disabled="">
               <option>Loading reports…</option>
             </select>
           </div>
           <div class="controls">
-            <label for="focusGroup">FOCUS CATEGORY</label
-            ><select id="focusGroup" disabled></select>
+            <label for="focusGroup">FOCUS CATEGORY</label><select id="focusGroup" disabled=""></select>
           </div>
           <div class="controls">
-            <label for="lookbackSelect">HISTORICAL WINDOW</label
-            ><select id="lookbackSelect">
+            <label for="lookbackSelect">HISTORICAL WINDOW</label><select id="lookbackSelect">
               <option value="26">26 weeks</option>
-              <option value="52" selected>52 weeks</option>
+              <option value="52" selected="">52 weeks</option>
               <option value="104">104 weeks</option>
               <option value="156">156 weeks</option>
             </select>
           </div>
         </div>
         <div class="workspace-tools">
-          <span>One workspace. Seven report types.</span
-          ><button type="button" id="refreshDataset" class="text-button">
+          <button type="button" id="refreshDataset" class="text-button">
             Check published update ↻
           </button>
         </div>
-        <div id="updateBanner" class="historical-banner" hidden role="status"></div>
-        <p id="reportDescription" class="report-description"></p>
-        <p id="workspaceNotice" class="workspace-notice" role="status"></p>
-        <section
-          id="radar" data-workspace-section
-          class="research-section"
-          aria-labelledby="radarTitle"
-        >
+        <div id="updateBanner" class="historical-banner" hidden="" role="status"></div>
+        <details class="context-help"><summary>About this report</summary><p id="reportDescription" class="report-description"></p></details>
+        <p id="workspaceNotice" class="workspace-notice" role="status"></p><p id="dataStatus" class="data-status" role="status">
+            Loading COT data…
+          </p>
+        <section id="radar" data-workspace-section="" class="research-section" aria-labelledby="radarTitle">
           <div class="section-heading">
             <div>
-              <p class="eyebrow">01 / THE WEEKLY RADAR</p>
-              <h2 id="radarTitle">What moved beneath the surface?</h2>
+              
+              <h2 id="radarTitle">Weekly radar</h2>
             </div>
-            <button
-              type="button"
-              id="radarExport"
-              disabled
-              class="quiet-button"
-            >
+            <button type="button" id="radarExport" disabled="" class="quiet-button">
               Export briefing ↗
             </button>
           </div>
           <p id="radarScope" class="section-subtitle">
             Loading positioning snapshots…
           </p>
-          <p id="radarNarrative" class="briefing-text"></p>
+          <details class="context-help"><summary>Weekly summary</summary><p id="radarNarrative" class="briefing-text"></p></details>
           <div class="radar-grid">
             <article class="radar-card">
               <p class="eyebrow">RELATIVE POSITION SHIFTS</p>
@@ -162,145 +104,90 @@
               <div id="radarOI"></div>
             </article>
           </div>
-          <p class="data-note">
+          <details class="context-help"><summary>How rankings work</summary><p class="data-note">
             Descriptive rankings, not forecasts. Position moves use percentage
             points of open interest; historical extremes require sufficient
             comparable observations.
-          </p>
+          </p></details>
         </section>
-        <section
-          id="dashboard" data-workspace-section
-          class="dashboard"
-          aria-labelledby="dashboard-title"
-        >
+        <section id="dashboard" data-workspace-section="" class="dashboard" aria-labelledby="dashboard-title">
           <div class="section-heading">
             <div>
-              <p class="eyebrow">02 / MARKET ANALYSIS</p>
-              <h2 id="dashboard-title">Read the positioning.</h2>
+              
+              <h2 id="dashboard-title">Market analysis</h2>
             </div>
           </div>
           <div class="analysis-actions">
-            <button
-              type="button"
-              id="watchToggle"
-              class="quiet-button"
-              disabled
-            >
-              ☆ Add to watchlist</button
-            ><button
-              type="button"
-              id="shareButton"
-              disabled
-              class="quiet-button"
-            >
-              Copy analysis link ↗</button
-            ><input
-              id="shareLink"
-              type="url"
-              readonly
-              hidden
-              aria-label="Shareable analysis link"
-            />
+            <button type="button" id="watchToggle" class="quiet-button" disabled="">
+              ☆ Add to watchlist</button><button type="button" id="shareButton" disabled="" class="quiet-button">
+              Copy analysis link ↗</button><input id="shareLink" type="url" readonly="" hidden="" aria-label="Shareable analysis link">
           </div>
           <div class="data-controls">
             <div class="controls">
-              <label for="marketSearch">FIND A MARKET</label
-              ><input
-                id="marketSearch"
-                type="search"
-                placeholder="Name, exchange or CFTC code"
-                disabled
-                autocomplete="off"
-              />
+              <label for="marketSearch">FIND A MARKET</label><input id="marketSearch" type="search" placeholder="Name, exchange or CFTC code" disabled="" autocomplete="off">
             </div>
             <div class="controls market-control">
-              <label for="assetSelect">CONTRACT / EXCHANGE / CODE</label
-              ><select id="assetSelect" disabled>
+              <label for="assetSelect">CONTRACT / EXCHANGE / CODE</label><select id="assetSelect" disabled="">
                 <option>Loading markets…</option>
               </select>
             </div>
           </div>
           <div class="filter-summary">
-            <label class="checkbox-label"
-              ><input type="checkbox" id="latestOnly" checked /> Latest-report
-              markets only</label
-            ><span id="marketCount">—</span>
+            <label class="checkbox-label"><input type="checkbox" id="latestOnly" checked=""> Latest-report
+              markets only</label><span id="marketCount">—</span>
           </div>
 
-          <p id="dataStatus" class="data-status" role="status">
-            Loading COT data…
-          </p>
+          
 
           <div class="analysis-toolbar">
             <div class="controls">
-              <label for="observationSelect">ANALYSE AS OF</label
-              ><select id="observationSelect" disabled></select>
+              <label for="observationSelect">REPORT DATE</label><select id="observationSelect" disabled=""></select>
             </div>
             <div class="controls">
-              <label for="rangeSelect">CHART PERIOD</label
-              ><select id="rangeSelect">
+              <label for="rangeSelect">CHART RANGE</label><select id="rangeSelect">
                 <option value="13">13W</option>
                 <option value="26">26W</option>
-                <option value="52" selected>52W</option>
+                <option value="52" selected="">52W</option>
                 <option value="104">104W</option>
                 <option value="all">All history</option>
               </select>
             </div>
             <div class="controls">
-              <label for="scaleSelect">POSITION SCALE</label
-              ><select id="scaleSelect">
+              <label for="scaleSelect">CHART SCALE</label><select id="scaleSelect">
                 <option value="contracts">Contracts</option>
                 <option value="share">% of open interest</option>
               </select>
             </div>
-            <label class="checkbox-label"
-              ><input id="showOI" type="checkbox" /> Overlay open
-              interest</label
-            >
+            <label class="checkbox-label"><input id="showOI" type="checkbox"> Overlay open
+              interest</label>
           </div>
           <div class="observation-navigation" role="group" aria-label="Browse report observations">
-            <button type="button" id="olderReport" class="quiet-button" disabled>← Older report</button>
+            <button type="button" id="olderReport" class="quiet-button" disabled="">← Older report</button>
             <span id="observationPosition" role="status">Select a market to browse reports.</span>
-            <button type="button" id="newerReport" class="quiet-button" disabled>Newer report →</button>
-            <button type="button" id="latestReport" class="text-button" disabled>Back to latest</button>
+            <button type="button" id="newerReport" class="quiet-button" disabled="">Newer report →</button>
+            <button type="button" id="latestReport" class="text-button" disabled="">Back to latest</button>
           </div>
-          <div id="historicalBanner" class="historical-banner" hidden></div>
-          <div class="market-facts">
-            <div>
-              <span>OPEN INTEREST</span><strong id="openInterest">—</strong>
-            </div>
-            <div>
-              <span>CONTRACT UNIT</span><strong id="unitLabel">—</strong>
-            </div>
-            <div>
-              <span>PREVIOUS OBSERVATION</span
-              ><strong id="comparisonDate">—</strong>
-            </div>
-          </div>
-          <div class="kpi-row" id="kpiRow" aria-live="polite"></div>
-          <section class="insight-panel" aria-labelledby="insightTitle">
-            <div class="table-heading">
-              <div>
-                <p class="eyebrow">THE HISTORICAL PERSPECTIVE</p>
-                <h3 id="insightTitle">Positioning in context</h3>
-              </div>
-              <span id="insightCategory" class="context-tag"></span>
-            </div>
-            <div id="insightStats" class="insight-grid"></div>
-            <p id="insightNotes" class="data-note"></p>
-          </section>
-          <article class="chart-card" aria-labelledby="chartTitle">
+          <div id="historicalBanner" class="historical-banner" hidden=""></div><div class="analysis-tabs" role="tablist" aria-label="Analysis views"><button id="tab-overview" type="button" role="tab" aria-controls="panel-overview" aria-selected="true" tabindex="0" data-analysis-tab="overview">Overview</button><button id="tab-history" type="button" role="tab" aria-controls="panel-history" aria-selected="false" tabindex="-1" data-analysis-tab="history">History</button><button id="tab-compare" type="button" role="tab" aria-controls="panel-compare" aria-selected="false" tabindex="-1" data-analysis-tab="compare">Compare</button><button id="tab-data" type="button" role="tab" aria-controls="panel-data" aria-selected="false" tabindex="-1" data-analysis-tab="data">Data</button></div>
+          
+          
+          
+          
+          
+          
+          
+          
+          
+        <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" data-analysis-panel="overview" tabindex="0"><div class="kpi-row" id="kpiRow" aria-live="polite"></div><article class="chart-card" aria-labelledby="chartTitle">
             <div class="chart-heading">
               <div>
-                <p class="eyebrow">THE BIGGER PICTURE</p>
+                
                 <h3 id="chartTitle">Positioning over time</h3>
                 <p id="selectedMarket" class="selected-market">
                   Select a market to explore its history.
                 </p>
               </div>
               <div class="controls chart-metric">
-                <label for="metricSelect">SHOW POSITIONS</label
-                ><select id="metricSelect">
+                <label for="metricSelect">SHOW POSITIONS</label><select id="metricSelect">
                   <option value="net">Net</option>
                   <option value="long">Long</option>
                   <option value="short">Short</option>
@@ -308,27 +195,30 @@
                 </select>
               </div>
             </div>
-            <div
-              id="chartDiv"
-              role="region"
-              aria-label="Interactive net position history chart"
-            ></div>
+            <div id="chartDiv" role="region" aria-label="Interactive net position history chart"></div>
             <div class="chart-footer">
-              <span
-                ><span class="source-dot"></span
-                ><span id="sourceLabel">Source: CFTC</span></span
-              ><span>Report date <strong id="lastUpdate">—</strong></span>
+              <span><span class="source-dot"></span><span id="sourceLabel">Source: CFTC</span></span><span>Report date <strong id="lastUpdate">—</strong></span>
             </div>
-          </article>
+          </article></div><div id="panel-history" role="tabpanel" aria-labelledby="tab-history" data-analysis-panel="history" tabindex="0" hidden=""><section class="insight-panel" aria-labelledby="insightTitle">
+            <div class="table-heading">
+              <div>
+                
+                <h3 id="insightTitle">Historical context</h3>
+              </div>
+              <span id="insightCategory" class="context-tag"></span>
+            </div>
+            <div id="insightStats" class="insight-grid"></div>
+            <details class="context-help"><summary>Calculation details</summary><p id="insightNotes" class="data-note"></p></details>
+          </section>
           <section class="rank-panel" aria-labelledby="rankTitle">
             <div class="table-heading">
-              <div><p class="eyebrow">THE POSITIONING CYCLE</p><h3 id="rankTitle">Historical percentile over time</h3></div>
-              <button type="button" id="rankExport" class="text-button" disabled>Percentile CSV ↗</button>
+              <div><h3 id="rankTitle">Historical percentile</h3></div>
+              <button type="button" id="rankExport" class="text-button" disabled="">Percentile CSV ↗</button>
             </div>
             <p id="rankContext" class="data-note"></p>
-            <p id="rankStatus" class="data-note" role="status">Select a market to see its historical context.</p>
+            <details class="context-help"><summary>History coverage</summary><p id="rankStatus" class="data-note" role="status">Select a market to see its historical context.</p></details>
             <div id="rankChart" role="region" aria-label="Rolling historical net-position percentile"></div>
-            <p class="data-note">Each point uses only observations up to its own date, including that observation. Shaded areas mark ranks ≤10 and ≥90. These describe historical positioning; they do not predict returns. Missing values remain gaps.</p>
+            <details class="context-help"><summary>How to read this chart</summary><p class="data-note">Each point uses only observations up to its own date, including that observation. Shaded areas mark ranks ≤10 and ≥90. These describe historical positioning; they do not predict returns. Missing values remain gaps.</p></details>
             <details class="rank-values"><summary>View percentile data as a table</summary>
               <div class="table-scroll" tabindex="0" role="region" aria-label="Historical percentile values, horizontally scrollable">
                 <table><thead><tr><th scope="col">Report date</th><th scope="col">Net contracts</th><th scope="col">Percentile</th><th scope="col">COT index</th><th scope="col">Valid / required</th></tr></thead><tbody id="rankBody"></tbody></table>
@@ -337,44 +227,53 @@
           </section>
           <section class="weekly-panel" aria-labelledby="weeklyTitle">
             <div class="table-heading">
-              <div><p class="eyebrow">WHAT CHANGED?</p><h3 id="weeklyTitle">Exact-week changes by trader category</h3></div>
-              <button type="button" id="weeklyExport" class="text-button" disabled>Weekly changes CSV ↗</button>
+              <div><h3 id="weeklyTitle">Weekly changes</h3></div>
+              <button type="button" id="weeklyExport" class="text-button" disabled="">Weekly changes CSV ↗</button>
             </div>
             <p id="weeklyContext" class="data-note"></p>
             <div class="table-scroll" tabindex="0" role="region" aria-label="Weekly changes by trader category, horizontally scrollable">
               <table><thead><tr><th scope="col">Trader category</th><th scope="col" id="weeklyHead1">1W change</th><th scope="col" id="weeklyHead4">4W change</th><th scope="col" id="weeklyHead13">13W change</th></tr></thead><tbody id="weeklyBody"></tbody></table>
             </div>
-            <p class="data-note">Each cell shows the change in net contracts and net / OI in percentage points. Comparisons require the exact date 7, 28 or 91 days earlier within the same unit segment. “—” means unavailable; another week is never substituted.</p>
+            <details class="context-help"><summary>How weekly changes are calculated</summary><p class="data-note">Each cell shows the change in net contracts and net / OI in percentage points. Comparisons require the exact date 7, 28 or 91 days earlier within the same unit segment. “—” means unavailable; another week is never substituted.</p></details>
           </section>
-          <section class="positions-panel" aria-labelledby="positionsTitle">
+        </div>
+        <div id="panel-compare" role="tabpanel" aria-labelledby="tab-compare" data-analysis-panel="compare" tabindex="0" hidden=""><section class="comparison-panel" aria-labelledby="compareTitle">
             <div class="table-heading">
               <div>
-                <p class="eyebrow">THE UNDERLYING NUMBERS</p>
-                <h3 id="positionsTitle">Latest report breakdown</h3>
-              </div>
-              <div class="export-actions">
-                <button
-                  type="button"
-                  id="csvDownload"
-                  class="text-button"
-                  disabled
-                >
-                  Chart-period CSV ↗</button
-                ><a
-                  id="historyDownload"
-                  class="export-link"
-                  download
-                  aria-disabled="true"
-                  >Full history JSON ↗</a
-                >
+                
+                <h3 id="compareTitle">Compare market positioning</h3>
               </div>
             </div>
-            <div
-              class="table-scroll"
-              tabindex="0"
-              role="region"
-              aria-label="Latest positions, horizontally scrollable"
-            >
+            <p class="section-subtitle">Compare up to three markets using net positions as a share of open interest.</p>
+            <div class="comparison-picker"><div class="controls"><label for="compareSearch">FIND A COMPARISON MARKET</label><input id="compareSearch" type="search" placeholder="Name, exchange or code"></div><div class="controls"><label for="compareCandidate">AVAILABLE CONTRACTS</label><select id="compareCandidate"></select></div><button id="compareAdd" class="quiet-button" type="button" disabled="">Add market +</button></div><div id="compareChips" class="view-list"></div><select id="compareSelect" multiple="" hidden="" aria-hidden="true"></select>
+            <p id="compareStatus" class="data-note" role="status">
+              Select additional markets to compare.
+            </p>
+            <div id="compareChart" role="region" aria-label="Normalized market comparison chart" hidden=""></div>
+          </section>
+        </div>
+        <div id="panel-data" role="tabpanel" aria-labelledby="tab-data" data-analysis-panel="data" tabindex="0" hidden=""><div class="market-facts">
+            <div>
+              <span>OPEN INTEREST</span><strong id="openInterest">—</strong>
+            </div>
+            <div>
+              <span>CONTRACT UNIT</span><strong id="unitLabel">—</strong>
+            </div>
+            <div>
+              <span>PREVIOUS OBSERVATION</span><strong id="comparisonDate">—</strong>
+            </div>
+          </div><section class="positions-panel" aria-labelledby="positionsTitle">
+            <div class="table-heading">
+              <div>
+                
+                <h3 id="positionsTitle">Report breakdown</h3>
+              </div>
+              <div class="export-actions">
+                <button type="button" id="csvDownload" class="text-button" disabled="">
+                  Chart-period CSV ↗</button><a id="historyDownload" class="export-link" download="" aria-disabled="true">Full history JSON ↗</a>
+              </div>
+            </div>
+            <div class="table-scroll" tabindex="0" role="region" aria-label="Latest positions, horizontally scrollable">
               <table>
                 <thead>
                   <tr>
@@ -392,31 +291,7 @@
             </div>
             <p id="comparisonNote" class="data-note"></p>
             <p id="roundingNote" class="data-note"></p>
-          </section>
-          <section class="comparison-panel" aria-labelledby="compareTitle">
-            <div class="table-heading">
-              <div>
-                <p class="eyebrow">A COMMON SCALE</p>
-                <h3 id="compareTitle">Compare market positioning</h3>
-              </div>
-            </div>
-            <p class="section-subtitle">
-              Compare the focus category as net % of open interest within this
-              report type. Select up to three additional contracts. The selected
-              chart period and analysis date apply.
-            </p>
-            <div class="comparison-picker"><div class="controls"><label for="compareSearch">FIND A COMPARISON MARKET</label><input id="compareSearch" type="search" placeholder="Name, exchange or code"></div><div class="controls"><label for="compareCandidate">AVAILABLE CONTRACTS</label><select id="compareCandidate"></select></div><button id="compareAdd" class="quiet-button" type="button" disabled>Add market +</button></div><div id="compareChips" class="view-list"></div><select id="compareSelect" multiple hidden aria-hidden="true"></select>
-            <p id="compareStatus" class="data-note" role="status">
-              Select additional markets to compare.
-            </p>
-            <div
-              id="compareChart"
-              role="region"
-              aria-label="Normalized market comparison chart"
-              hidden
-            ></div>
-          </section>
-          <details class="methodology">
+          </section><details class="methodology">
             <summary>Data coverage &amp; methodology</summary>
             <div class="methodology-body">
               <p>Historical views use currently published archives, which can contain later corrections. They are not archived release vintages or revision-free backtests.</p>
@@ -463,60 +338,28 @@
                 scale does not change these metrics.
               </p>
               <div class="methodology-links">
-                <a
-                  id="rawDownload"
-                  class="export-link"
-                  download
-                  aria-disabled="true"
-                  >Complete source JSON ↗</a
-                ><a
-                  href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/HistoricalCompressed/index.htm"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  >Official archives ↗</a
-                ><a
-                  href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/ExplanatoryNotes/index.htm"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  >CFTC definitions ↗</a
-                >
+                <a id="rawDownload" class="export-link" download="" aria-disabled="true">Complete source JSON ↗</a><a href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/HistoricalCompressed/index.htm" target="_blank" rel="noopener noreferrer">Official archives ↗</a><a href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/ExplanatoryNotes/index.htm" target="_blank" rel="noopener noreferrer">CFTC definitions ↗</a>
               </div>
             </div>
-          </details>
-        </section>
-        <section
-          id="screener" data-workspace-section
-          class="research-section"
-          aria-labelledby="screenerTitle"
-        >
+          </details></div></section>
+        <section id="screener" data-workspace-section="" class="research-section" aria-labelledby="screenerTitle">
           <div class="section-heading">
             <div>
-              <p class="eyebrow">03 / EXPLORE THE LANDSCAPE</p>
-              <h2 id="screenerTitle">Find the positioning that stands out.</h2>
+              
+              <h2 id="screenerTitle">Market screener</h2>
             </div>
-            <button
-              type="button"
-              id="screenExport"
-              disabled
-              class="quiet-button"
-            >
+            <button type="button" id="screenExport" disabled="" class="quiet-button">
               Export filtered CSV ↗
             </button>
           </div>
           <p id="screenScope" class="section-subtitle"></p>
-          <div class="screener-view"><label for="screenView">DISPLAY</label><select id="screenView"><option value="table">Data table</option><option value="heatmap">Category heatmap</option></select><span>Heatmap order follows the focus-category filters.</span></div>
+          <div class="screener-view"><label for="screenView">DISPLAY</label><select id="screenView"><option value="table">Data table</option><option value="heatmap">Category heatmap</option></select></div>
           <div class="screener-controls">
             <div class="controls">
-              <label for="screenSearch">SEARCH</label
-              ><input
-                type="search"
-                id="screenSearch"
-                placeholder="Market, exchange or code"
-              />
+              <label for="screenSearch">SEARCH</label><input type="search" id="screenSearch" placeholder="Market, exchange or code">
             </div>
             <div class="controls">
-              <label for="screenSort">SORT BY</label
-              ><select id="screenSort">
+              <label for="screenSort">SORT BY</label><select id="screenSort">
                 <option value="move">Weekly move · absolute pp</option>
                 <option value="upper">Percentile · highest first</option>
                 <option value="lower">Percentile · lowest first</option>
@@ -526,8 +369,7 @@
               </select>
             </div>
             <div class="controls">
-              <label for="screenFilter">POSITIONING FILTER</label
-              ><select id="screenFilter">
+              <label for="screenFilter">POSITIONING FILTER</label><select id="screenFilter">
                 <option value="all">All positions</option>
                 <option value="extreme">Percentile ≤10 or ≥90</option>
                 <option value="upper">Percentile ≥90</option>
@@ -537,28 +379,14 @@
               </select>
             </div>
             <div class="controls">
-              <label for="minOI">MINIMUM OPEN INTEREST</label
-              ><input
-                id="minOI"
-                type="number"
-                min="0"
-                step="1000"
-                value="1000"
-              />
+              <label for="minOI">MINIMUM OPEN INTEREST</label><input id="minOI" type="number" min="0" step="1000" value="1000">
             </div>
           </div>
           <div class="filter-summary">
-            <label class="checkbox-label"
-              ><input type="checkbox" id="screenLatest" checked /> Latest-report
-              markets only</label
-            ><span id="screenCount"></span>
+            <label class="checkbox-label"><input type="checkbox" id="screenLatest" checked=""> Latest-report
+              markets only</label><span id="screenCount"></span>
           </div>
-          <div
-            class="table-scroll"
-            tabindex="0"
-            role="region"
-            aria-label="Market screener, horizontally scrollable"
-          >
+          <div class="table-scroll" tabindex="0" role="region" aria-label="Market screener, horizontally scrollable">
             <table class="screener-table" id="screenTable">
               <thead>
                 <tr>
@@ -576,70 +404,39 @@
               <tbody id="screenBody"></tbody>
             </table>
           </div>
-          <div id="heatmapPanel" hidden><p class="heatmap-legend"><span>0 · lower historical rank</span><span>50 · middle</span><span>100 · higher historical rank</span></p><div class="table-scroll" tabindex="0" role="region" aria-label="Historical percentile heatmap"><table id="heatmapTable"><thead id="heatmapHead"></thead><tbody id="heatmapBody"></tbody></table></div><p class="data-note">Each cell ranks its own category’s net position within its own historical window. Missing or insufficient data stays blank. Select a cell to open that category and market.</p></div>
+          <div id="heatmapPanel" hidden=""><p class="heatmap-legend"><span>0 · lower historical rank</span><span>50 · middle</span><span>100 · higher historical rank</span></p><div class="table-scroll" tabindex="0" role="region" aria-label="Historical percentile heatmap"><table id="heatmapTable"><thead id="heatmapHead"></thead><tbody id="heatmapBody"></tbody></table></div><details class="context-help"><summary>How to read the heatmap</summary><p class="data-note">Each cell ranks its own category’s net position within its own historical window. Missing or insufficient data stays blank. Select a cell to open that category and market.</p></details></div>
           <div class="pagination">
             <button type="button" id="screenPrevious" class="quiet-button">
-              ← Previous</button
-            ><span id="screenPage"></span
-            ><button type="button" id="screenNext" class="quiet-button">
+              ← Previous</button><span id="screenPage"></span><button type="button" id="screenNext" class="quiet-button">
               Next →
             </button>
           </div>
-          <p class="data-note">
+          <details class="context-help"><summary>Columns &amp; calculations</summary><p class="data-note">
             pp = percentage points of open interest. 1W/4W changes require an
             observation exactly 7/28 days earlier in the same unit segment.
             Percentile and COT index use the global historical window. “—” means
             unavailable, including insufficient history. Rankings compare
             relative positions, not equal economic exposure.
-          </p>
+          </p></details>
         </section>
-        <section
-          id="watchlist" data-workspace-section
-          class="research-section"
-          aria-labelledby="watchlistTitle"
-        >
+        <section id="watchlist" data-workspace-section="" class="research-section" aria-labelledby="watchlistTitle">
           <div class="section-heading">
             <div>
-              <p class="eyebrow">04 / YOUR PERSPECTIVE</p>
-              <h2 id="watchlistTitle">Keep your markets close.</h2>
+              
+              <h2 id="watchlistTitle">Your workspace</h2>
             </div>
             <div class="export-actions">
               <button id="backupExport" type="button" class="quiet-button">
-                Export workspace</button
-              ><button
-                type="button"
-                class="quiet-button"
-                id="backupImportButton"
-              >
-                Import workspace</button
-              ><input
-                type="file"
-                id="backupImport"
-                accept="application/json,.json"
-                hidden
-              />
+                Export workspace</button><button type="button" class="quiet-button" id="backupImportButton">
+                Import workspace</button><input type="file" id="backupImport" accept="application/json,.json" hidden="">
             </div>
           </div>
-          <p class="section-subtitle">
-            Watchlist, saved views and rules live in this browser. No account,
-            cloud sync or background notifications. Export a backup to move them
-            to another browser.
-          </p>
+          <p class="section-subtitle">Saved in this browser. Export a backup to keep your workspace.</p>
           <div id="watchlistItems" class="watchlist-grid"></div>
           <div class="saved-views">
             <div class="table-heading"><h3>Saved analysis views</h3></div>
             <div class="save-view-form">
-              <label class="visually-hidden" for="viewName">View name</label
-              ><input
-                id="viewName"
-                maxlength="60"
-                placeholder="Name this analysis view"
-              /><button
-                id="saveView"
-                disabled
-                type="button"
-                class="quiet-button"
-              >
+              <label class="visually-hidden" for="viewName">View name</label><input id="viewName" maxlength="60" placeholder="Name this analysis view"><button id="saveView" disabled="" type="button" class="quiet-button">
                 Save current view
               </button>
             </div>
@@ -648,20 +445,14 @@
           <div class="alert-panel">
             <div class="table-heading">
               <div>
-                <p class="eyebrow">LOCAL POSITIONING RULES</p>
+                
                 <h3>Your on-page alerts</h3>
               </div>
             </div>
-            <p class="section-subtitle">
-              Add a rule for the selected market and focus category. Rules
-              evaluate the latest dataset when this page loads or when you
-              change the workspace. They do not monitor in the background or
-              send messages.
-            </p>
+            <p class="section-subtitle">Checked while this page is open. No background monitoring or notifications.</p>
             <div class="alert-form">
               <div class="controls">
-                <label for="alertType">CONDITION</label
-                ><select id="alertType">
+                <label for="alertType">CONDITION</label><select id="alertType">
                   <option value="high">Percentile at or above</option>
                   <option value="low">Percentile at or below</option>
                   <option value="move">Absolute 1W Δ net/OI ≥ pp</option>
@@ -669,17 +460,9 @@
                 </select>
               </div>
               <div class="controls">
-                <label for="alertThreshold">THRESHOLD</label
-                ><input
-                  type="number"
-                  id="alertThreshold"
-                  value="90"
-                  min="0"
-                  max="100"
-                  step="0.5"
-                />
+                <label for="alertThreshold">THRESHOLD</label><input type="number" id="alertThreshold" value="90" min="0" max="100" step="0.5">
               </div>
-              <button id="addAlert" disabled type="button" class="quiet-button">
+              <button id="addAlert" disabled="" type="button" class="quiet-button">
                 Add rule for this market
               </button>
             </div>
@@ -688,15 +471,10 @@
         </section>
       </main>
       <footer class="footer-bar">
-        <a class="footer-brand" href="./">COTInsight<span>.</span></a
-        ><span>A little more perspective on the market.</span
-        ><a
-          href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm"
-          target="_blank"
-          rel="noopener noreferrer"
-          >Explore the source <span aria-hidden="true">↗</span></a
-        >
+        <a class="footer-brand" href="./">COTInsight<span>.</span></a><a href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm" target="_blank" rel="noopener noreferrer">Explore the source <span aria-hidden="true">↗</span></a>
       </footer>
     </div>
-  </body>
-</html>
+  
+
+
+</body></html>

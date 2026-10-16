@@ -44,6 +44,7 @@ function colorChange(element, value) {
 function setStatus(text, state = "") {
   el("dataStatus").textContent = text;
   el("dataStatus").dataset.state = state;
+  el("dataStatus").hidden = !state && text.startsWith("Official CFTC source");
 }
 
 async function getJSON(path, signal) {
@@ -252,14 +253,6 @@ async function renderMarket() {
       node("div", "kpi-value", format(values.net, true)),
       bottom,
     );
-    const rank = summary.groups[group.id].windows[lookback()];
-    card.append(
-      node(
-        "p",
-        "card-context",
-        `${lookback()}W percentile ${pct(rank.percentile)} · n=${rank.n}`,
-      ),
-    );
     el("kpiRow").appendChild(card);
     const row = node("tr");
     const label = node("th", "", group.label);
@@ -303,7 +296,7 @@ async function renderMarket() {
 }
 
 function drawChart() {
-  if (!history) return;
+  if (!history || workspaceState.activeSection !== "dashboard" || workspaceState.activePanel !== "overview") return;
   const metric = el("metricSelect").value;
   const visible = chartHistory();
   const scaled = el("scaleSelect").value === "share";
@@ -348,7 +341,7 @@ function drawChart() {
       line: { color: "#a29aae", width: 1.5, dash: "dot" },
     });
   el("chartTitle").textContent =
-    `${el("metricSelect").selectedOptions[0].textContent} positions over time`;
+    `${el("metricSelect").selectedOptions[0].textContent} positions`;
   el("chartDiv").setAttribute(
     "aria-label",
     `${el("metricSelect").selectedOptions[0].textContent} position history for ${activeMarket.name}`,

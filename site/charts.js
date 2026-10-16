@@ -47,9 +47,23 @@ function setStatus(text, state = "") {
 }
 
 async function getJSON(path, signal) {
-  const response = await fetch(path, { cache: "no-cache", signal });
-  if (!response.ok) throw new Error(`Data request failed (${response.status})`);
-  return response.json();
+  const deadline = new AbortController();
+  const abort = () => deadline.abort(signal?.reason);
+  if (signal?.aborted) abort(); else signal?.addEventListener('abort', abort, {once:true});
+  const timer = setTimeout(() => deadline.abort(new DOMException('Data request timed out', 'TimeoutError')), 20000);
+  try {
+    const response = await fetch(path, {cache:'no-cache', signal:deadline.signal});
+    if (!response.ok) throw new Error(`Data request failed (${response.status})`);
+    return await response.json();
+  } finally { clearTimeout(timer); signal?.removeEventListener('abort', abort); }
+}
+async function loadMarketData(report, market, signal) {
+  const key = `${report.id}/${market.path}`;
+  if (cache.has(key)) return cache.get(key);
+  const data = await getJSON(dataURL(market.path), signal);
+  if(data.schema_version!==2 || data.code!==market.code || data.report!==report.id || !Array.isArray(data.records) || !data.records.length) throw Error('Invalid market history');
+  if(cache.size>=12) cache.delete(cache.keys().next().value);
+  cache.set(key,data); return data;
 }
 
 function dataURL(path) {
@@ -137,22 +151,7 @@ async function loadHistory(market) {
   el("dashboard").setAttribute("aria-busy", "true");
   controller = new AbortController();
   try {
-    const key = `${report.id}/${market.path}`;
-    let data = cache.get(key);
-    if (!data) {
-      data = await getJSON(dataURL(market.path), controller.signal);
-      if (
-        data.schema_version !== 2 ||
-        data.code !== market.code ||
-        data.report !== report.id ||
-        !Array.isArray(data.records) ||
-        !data.records.length
-      )
-        throw new Error("Invalid market history");
-      // Bounded cache: browsing many contracts should not grow indefinitely.
-      if (cache.size >= 12) cache.delete(cache.keys().next().value);
-      cache.set(key, data);
-    }
+    const data = await loadMarketData(report, market, controller.signal);
     if (id !== requestId) return;
     history = data.records;
     activeMarket = market;

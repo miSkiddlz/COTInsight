@@ -120,3 +120,29 @@ echten Historien und historischen Stichtagen zeigen Übereinstimmung zwischen de
 Python-Buildberechnung und dem JavaScript-Browsermodul. Bedienprüfungen decken
 insbesondere historische Datengrenzen, Exporte, URL-Wiederherstellung, Browser-Speicher,
 Filter/Pagination und sichere Darstellung importierter Beschriftungen ab.
+
+## Ergänzung: Navigation und Heatmap
+
+Keine Änderung an Datenquellen oder Kennzahldefinitionen. Neue DOM-Ablauftests
+prüfen Bereichswechsel, Heatmap mit fehlenden Werten/Leerzustand, Heatmap-CSV,
+lokale Ansichtspräferenz, Vergleich hinzufügen/entfernen und Update-Prüfung
+bei gleichem sowie neuerem Datenstand. 23 Python- und sechs Node-Tests bestanden.
+Die zuvor veröffentlichte Desktop-Oberfläche wurde visuell im Browser geprüft,
+einschließlich Plotly-Rendering, Berichtwechsel und OI-Overlay. Die neuen
+Layoutänderungen wurden noch nicht visuell auf einem Mobilgerät geprüft.
+
+## Ergänzung 2026-10-16: Historischer Verlauf und Wochenmatrix
+
+- Neue Funktion `COTMath.rankHistory`: dieselbe Rangdefinition, 80%-Mindestabdeckung
+  und zusammenhängende Einheitensegmente wie die bestehenden Momentaufnahmen.
+- Jeder Punkt verwendet ausschließlich seine eigene Vergangenheit. Das sichtbare
+  Zeitfenster wird erst nach der Berechnung zugeschnitten; der Stichtag bleibt strikt.
+- 1.920 Gruppen-/Fensterwerte aus 112 echten Historien/Stichtagen stimmen mit den
+  Python-Momentaufnahmen überein (Toleranz 1e-9).
+- Zwölf Node-Tests einschließlich sechs neuer Prüfungen für Verlauf, Zukunftsausschluss,
+  Einheitenwechsel, fehlende Werte, Kalenderlücken und ungültige Fenster.
+- 23 Python-Tests weiterhin bestanden. DOM-Tests prüfen Navigation, Rang-/Wochen-CSV,
+  früheste/neueste Beobachtung und leere Bedienfelder nach einem Ladefehler.
+- Keine Änderung am Import oder an den bisherigen Definitionen. Neue Diagramme
+  basieren auf bereits geladenen Markthistorien; keine neuen Abhängigkeiten.
+- Visuelle Browserprüfung der neuen Diagramme sowie Mobilprüfung stehen noch aus.

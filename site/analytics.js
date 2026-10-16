@@ -95,7 +95,23 @@
         r.date <= asof && (!weeks || r.date > shift(asof, -Number(weeks) * 7)),
     );
   }
-  const api = { WINDOWS, valid, shift, share, rankMetrics, summarize, range };
+  function rankHistory(records, group, weeks, asof) {
+    if (!WINDOWS.includes(Number(weeks))) throw new Error("Unsupported rank window");
+    const available = records.filter((r) => !asof || r.date <= asof);
+    let first = 0;
+    return available.map((record, index) => {
+      if (index && record.unit !== available[index - 1].unit) first = index;
+      const boundary = shift(record.date, -Number(weeks) * 7);
+      while (first < index && available[first].date <= boundary) first++;
+      const net = record.groups[group]?.net ?? null;
+      return {
+        date: record.date, unit: record.unit, net,
+        open_interest: record.open_interest,
+        ...rankMetrics(available.slice(first, index + 1).map((r) => r.groups[group]?.net), net, Number(weeks)),
+      };
+    });
+  }
+  const api = { WINDOWS, valid, shift, share, rankMetrics, summarize, range, rankHistory };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.COTMath = api;
 })(typeof window !== "undefined" ? window : globalThis);

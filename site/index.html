@@ -10,11 +10,13 @@
     />
     <title>COTInsight — A clearer view of market positioning</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=workspace-1" />
+    <link rel="stylesheet" href="./styles.css?v=workspace-3" />
     <script src="https://cdn.plot.ly/plotly-2.30.0.min.js" defer></script>
-    <script src="./analytics.js?v=workspace-1" defer></script>
-    <script src="./charts.js?v=workspace-1" defer></script>
-    <script src="./workspace.js?v=workspace-1" defer></script>
+    <script src="./analytics.js?v=workspace-3" defer></script>
+    <script src="./charts.js?v=workspace-3" defer></script>
+    <script src="./workspace.js?v=workspace-3" defer></script>
+    <script src="./interface.js?v=workspace-3" defer></script>
+    <script src="./research.js?v=workspace-3" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#dashboard">Skip to dashboard</a>
@@ -52,7 +54,7 @@
         </a>
         <nav aria-label="Main navigation">
           <a class="nav-active" href="#radar">Radar</a
-          ><a href="#screener">Screener</a><a href="#watchlist">Watchlist</a>
+          ><a href="#dashboard">Analysis</a><a href="#screener">Screener</a><a href="#watchlist">Watchlist</a>
           <a
             href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm"
             target="_blank"
@@ -114,13 +116,14 @@
         <div class="workspace-tools">
           <span>One workspace. Seven report types.</span
           ><button type="button" id="refreshDataset" class="text-button">
-            Reload latest dataset ↻
+            Check published update ↻
           </button>
         </div>
+        <div id="updateBanner" class="historical-banner" hidden role="status"></div>
         <p id="reportDescription" class="report-description"></p>
         <p id="workspaceNotice" class="workspace-notice" role="status"></p>
         <section
-          id="radar"
+          id="radar" data-workspace-section
           class="research-section"
           aria-labelledby="radarTitle"
         >
@@ -166,7 +169,7 @@
           </p>
         </section>
         <section
-          id="dashboard"
+          id="dashboard" data-workspace-section
           class="dashboard"
           aria-labelledby="dashboard-title"
         >
@@ -255,6 +258,12 @@
               interest</label
             >
           </div>
+          <div class="observation-navigation" role="group" aria-label="Browse report observations">
+            <button type="button" id="olderReport" class="quiet-button" disabled>← Older report</button>
+            <span id="observationPosition" role="status">Select a market to browse reports.</span>
+            <button type="button" id="newerReport" class="quiet-button" disabled>Newer report →</button>
+            <button type="button" id="latestReport" class="text-button" disabled>Back to latest</button>
+          </div>
           <div id="historicalBanner" class="historical-banner" hidden></div>
           <div class="market-facts">
             <div>
@@ -311,6 +320,32 @@
               ><span>Report date <strong id="lastUpdate">—</strong></span>
             </div>
           </article>
+          <section class="rank-panel" aria-labelledby="rankTitle">
+            <div class="table-heading">
+              <div><p class="eyebrow">THE POSITIONING CYCLE</p><h3 id="rankTitle">Historical percentile over time</h3></div>
+              <button type="button" id="rankExport" class="text-button" disabled>Percentile CSV ↗</button>
+            </div>
+            <p id="rankContext" class="data-note"></p>
+            <p id="rankStatus" class="data-note" role="status">Select a market to see its historical context.</p>
+            <div id="rankChart" role="region" aria-label="Rolling historical net-position percentile"></div>
+            <p class="data-note">Each point uses only observations up to its own date, including that observation. Shaded areas mark ranks ≤10 and ≥90. These describe historical positioning; they do not predict returns. Missing values remain gaps.</p>
+            <details class="rank-values"><summary>View percentile data as a table</summary>
+              <div class="table-scroll" tabindex="0" role="region" aria-label="Historical percentile values, horizontally scrollable">
+                <table><thead><tr><th scope="col">Report date</th><th scope="col">Net contracts</th><th scope="col">Percentile</th><th scope="col">COT index</th><th scope="col">Valid / required</th></tr></thead><tbody id="rankBody"></tbody></table>
+              </div>
+            </details>
+          </section>
+          <section class="weekly-panel" aria-labelledby="weeklyTitle">
+            <div class="table-heading">
+              <div><p class="eyebrow">WHAT CHANGED?</p><h3 id="weeklyTitle">Exact-week changes by trader category</h3></div>
+              <button type="button" id="weeklyExport" class="text-button" disabled>Weekly changes CSV ↗</button>
+            </div>
+            <p id="weeklyContext" class="data-note"></p>
+            <div class="table-scroll" tabindex="0" role="region" aria-label="Weekly changes by trader category, horizontally scrollable">
+              <table><thead><tr><th scope="col">Trader category</th><th scope="col" id="weeklyHead1">1W change</th><th scope="col" id="weeklyHead4">4W change</th><th scope="col" id="weeklyHead13">13W change</th></tr></thead><tbody id="weeklyBody"></tbody></table>
+            </div>
+            <p class="data-note">Each cell shows the change in net contracts and net / OI in percentage points. Comparisons require the exact date 7, 28 or 91 days earlier within the same unit segment. “—” means unavailable; another week is never substituted.</p>
+          </section>
           <section class="positions-panel" aria-labelledby="positionsTitle">
             <div class="table-heading">
               <div>
@@ -370,16 +405,7 @@
               report type. Select up to three additional contracts. The selected
               chart period and analysis date apply.
             </p>
-            <div class="controls comparison-control">
-              <label for="compareSelect"
-                >ADDITIONAL MARKETS (CTRL / CMD FOR MULTIPLE)</label
-              ><select
-                id="compareSelect"
-                multiple
-                size="5"
-                aria-describedby="compareStatus"
-              ></select>
-            </div>
+            <div class="comparison-picker"><div class="controls"><label for="compareSearch">FIND A COMPARISON MARKET</label><input id="compareSearch" type="search" placeholder="Name, exchange or code"></div><div class="controls"><label for="compareCandidate">AVAILABLE CONTRACTS</label><select id="compareCandidate"></select></div><button id="compareAdd" class="quiet-button" type="button" disabled>Add market +</button></div><div id="compareChips" class="view-list"></div><select id="compareSelect" multiple hidden aria-hidden="true"></select>
             <p id="compareStatus" class="data-note" role="status">
               Select additional markets to compare.
             </p>
@@ -459,7 +485,7 @@
           </details>
         </section>
         <section
-          id="screener"
+          id="screener" data-workspace-section
           class="research-section"
           aria-labelledby="screenerTitle"
         >
@@ -478,6 +504,7 @@
             </button>
           </div>
           <p id="screenScope" class="section-subtitle"></p>
+          <div class="screener-view"><label for="screenView">DISPLAY</label><select id="screenView"><option value="table">Data table</option><option value="heatmap">Category heatmap</option></select><span>Heatmap order follows the focus-category filters.</span></div>
           <div class="screener-controls">
             <div class="controls">
               <label for="screenSearch">SEARCH</label
@@ -532,7 +559,7 @@
             role="region"
             aria-label="Market screener, horizontally scrollable"
           >
-            <table class="screener-table">
+            <table class="screener-table" id="screenTable">
               <thead>
                 <tr>
                   <th scope="col">Market / CFTC code</th>
@@ -549,6 +576,7 @@
               <tbody id="screenBody"></tbody>
             </table>
           </div>
+          <div id="heatmapPanel" hidden><p class="heatmap-legend"><span>0 · lower historical rank</span><span>50 · middle</span><span>100 · higher historical rank</span></p><div class="table-scroll" tabindex="0" role="region" aria-label="Historical percentile heatmap"><table id="heatmapTable"><thead id="heatmapHead"></thead><tbody id="heatmapBody"></tbody></table></div><p class="data-note">Each cell ranks its own category’s net position within its own historical window. Missing or insufficient data stays blank. Select a cell to open that category and market.</p></div>
           <div class="pagination">
             <button type="button" id="screenPrevious" class="quiet-button">
               ← Previous</button
@@ -566,7 +594,7 @@
           </p>
         </section>
         <section
-          id="watchlist"
+          id="watchlist" data-workspace-section
           class="research-section"
           aria-labelledby="watchlistTitle"
         >

@@ -2,6 +2,9 @@
 
 ## Ein sinnvoller Einstieg
 
+Die Navigation trennt **Radar**, **Analysis**, **Screener** und **Watchlist** in eigene
+Ansichten. Marktlinks öffnen die Analyse; geteilte URLs merken sich auch den Bereich.
+
 1. Oben **Berichtstyp**, **Focus Category** und **Historical Window** auswählen.
    Legacy/Non-Commercials ist der Standard. TFF und Disaggregated haben bewusst
    andere Händlergruppen.
@@ -9,6 +12,8 @@
    durch relative Positionsbewegungen, historische Randbereiche oder OI-Änderungen auffallen.
 3. Einen Markt anklicken oder im **Screener** suchen, filtern und sortieren.
 4. In der **Marktanalyse** Zeitraum, Stichtag, Skala und OI-Overlay wählen.
+   Mit **Older report**, **Newer report** und **Back to latest** durch die tatsächlich
+   verfügbaren Beobachtungen blättern. Lücken werden dabei nicht aufgefüllt.
 5. Mit **☆** speichern oder mit **Copy analysis link** genau diese Ansicht teilen.
 
 Das Radar verwendet aktuelle Serien des jeweiligen Berichtstyps und denselben
@@ -98,19 +103,60 @@ Der Screener sucht nach vollständigem Marktnamen, Börse oder Code und bietet:
 - Sortierung nach absoluter relativer Wochenbewegung, Perzentil, OI, Netto/OI oder Name.
 - 20 Ergebnisse pro Seite; der CSV-Export enthält **alle gefilterten Ergebnisse**, nicht nur die Seite.
 
+**Heatmap:** Im Screener zwischen Tabelle und Heatmap wechseln. Die Heatmap zeigt
+die historischen Netto-Perzentile aller Händlergruppen nebeneinander: Pfirsich für
+niedrige, Lavendel für hohe Ränge. Fehlende Werte bleiben als „—“ sichtbar.
+Filter, Sortierung und Seiteneinteilung bleiben aktiv; die Sortierung folgt weiterhin
+der Focus Category. Eine Zelle öffnet die Marktanalyse mit ihrer Händlergruppe.
+Der Heatmap-CSV-Export enthält alle gefilterten Märkte mit Perzentil, COT-Index
+und Beobachtungszahl für jede Gruppe. Die Ansichtspräferenz wird lokal gespeichert.
+
 Im Radar erscheinen höchstens fünf Einträge pro Kategorie. Eine fehlende Berechnungsbasis
 wird nicht durch 0 ersetzt. Beim Vorzeichenwechsel werden zwei echte, von null verschiedene
 Nettopositionen mit entgegengesetztem Vorzeichen verlangt.
 
 ## Vergleich mehrerer Märkte
 
-Der gewählte Markt ist die Basis. Im Mehrfachauswahlfeld bis zu drei weitere
-aktuelle Kontrakte desselben Reports wählen (am Desktop Ctrl/Cmd für mehrere).
+Der gewählte Markt ist die Basis. Nach Name, Börse oder Code suchen und mit
+**Add market +** bis zu drei weitere aktuelle Kontrakte desselben Reports ergänzen.
+Jeder Vergleich lässt sich über das × an seinem Eintrag entfernen.
 Verglichen wird die Focus Category als Nettoanteil am jeweiligen OI.
 
 Stichtag und Chartzeitraum gelten für alle Serien. Jede behält ihre tatsächlichen
 Berichtszeitpunkte; Lücken werden nicht aufgefüllt. Geänderte Einheitsbeschreibungen
 unterbrechen Linien. Kategorie, Datenstand und Normierung werden unter dem Feld erklärt.
+
+## Perzentilverlauf und Wochenmatrix
+
+**Historical percentile over time** zeigt die Focus Category im ausgewählten
+historischen Fenster. Jeder Punkt berechnet seinen Rang nur aus Beobachtungen bis
+zu seinem eigenen Datum. Der **Chart Period** schneidet anschließend den sichtbaren
+Verlauf zu: Frühere Beobachtungen außerhalb der Anzeige können weiterhin zur
+historischen Berechnungsbasis eines sichtbaren Punkts gehören. Ein anderer Stichtag
+blendet sämtliche späteren Punkte aus, auch in Tabelle und Export.
+
+Die schattierten Bereiche markieren Ränge ≤10 und ≥90. Die y-Achse bleibt bei 0–100;
+diese Zahlen sind historische Ränge, keine erwarteten Renditen. Fehlende Wochen,
+Einheitenwechsel und nicht berechenbare Werte unterbrechen die Linie. Bei fehlender
+Mindesthistorie bleibt der Punkt leer; der Hinweis zeigt, wie viele angezeigte Werte
+berechenbar sind und auf welches Datum sich der letzte verfügbare Rang bezieht.
+
+Unter **View percentile data as a table** stehen dieselben Werte mit Nettokontrakten,
+COT-Index und gültiger/benötigter Beobachtungszahl. **Percentile CSV** enthält alle
+angezeigten Beobachtungen inklusive fehlender Werte, Einheit, OI und Fensterminimum/
+-maximum. Der Export bleibt verfügbar, falls das Diagramm nicht gezeichnet werden kann.
+
+**Exact-week changes by trader category** vergleicht alle Händlergruppen des gewählten
+Reports am Analysestichtag mit exakt 7, 28 und 91 Tagen zuvor. Die Spalten benennen das
+erwartete Vergleichsdatum. Pro Zelle stehen die Änderung der Nettokontrakte und die
+Änderung von Netto/OI in **Prozentpunkten**. Die OI-Nenner stammen jeweils vom zugehörigen
+Datum. Fehlt ein exakter Vergleich im gleichen Einheitenabschnitt, erscheint „—“.
+
+**Weekly changes CSV** enthält alle Gruppen und Zeitabstände mit erwartetem und
+verfügbarem Vergleichsdatum. Die Matrix verwendet immer Nettopositionen, unabhängig
+von **Show Positions** oder **Position Scale** im Hauptdiagramm. Sie verwendet denselben
+Stichtag wie die Einzelanalyse. Im Gegensatz dazu bleibt der Screener auf dem letzten
+veröffentlichten Stand.
 
 ## Persönliche Einstellungen
 
@@ -146,11 +192,14 @@ Nichttreffer oder unzureichende Daten samt Datum des geprüften Datensatzes.
 Für historische, nicht mehr aktuelle Kontrakte wird kein aktueller Treffer behauptet.
 
 Es werden **keine E-Mails, Push-Nachrichten oder Hintergrundjobs** eingerichtet.
-Das GitHub-Datenupdate bleibt täglich; **Reload latest dataset** lädt den aktuellen
-veröffentlichten Stand. Eine bereits offene Seite empfängt keinen Echtzeit-Feed.
+Das GitHub-Datenupdate bleibt täglich; **Check published update** prüft den veröffentlichten Katalog. Ist ein neuer Stand
+vorhanden, lädt **Load new dataset** ihn auf Wunsch; die offene Analyse wird zuvor
+nicht ersetzt. Diese Prüfung startet keinen neuen Import. Eine bereits offene Seite empfängt keinen Echtzeit-Feed.
 
 ## Exporte
 
+- **Percentile CSV:** angezeigter Perzentilverlauf mit Berechnungsbasis und fehlenden Werten.
+- **Weekly changes CSV:** alle Händlergruppen, exakte Vergleichsdaten und Netto-/Netto-OI-Änderungen.
 - **Chart-period CSV:** alle Gruppen/Positionsfelder, gefiltert auf sichtbaren Zeitraum und Stichtag.
 - **Full history JSON:** vollständige normalisierte Historie des gewählten Kontrakts.
 - **Complete source JSON:** sämtliche Originalspalten und Quellwerte, unabhängig vom Chartzeitraum.
@@ -165,9 +214,22 @@ veröffentlichten Stand. Eine bereits offene Seite empfängt keinen Echtzeit-Fee
 Die Momentaufnahmen liegen in separaten, inhaltsabhängig benannten Dateien je Bericht;
 der Browser muss dafür nicht sämtliche Markthistorien herunterladen.
 `workspace.js` koordiniert Bedienung, lokalen Speicher und die zusätzlichen Bereiche.
+`interface.js` ergänzt Bereichsnavigation, Vergleichsauswahl und Heatmap.
+Markthistorien werden in einem auf zwölf Einträge begrenzten Sitzungscache wiederverwendet.
+Datenanfragen haben ein Zeitlimit von 20 Sekunden.
 Es gibt keine npm-Abhängigkeiten im Produkt oder Datenimport.
 
-Automatisierte Prüfungen: 23 Python-Tests und sechs Node-Tests. Zusätzlich wurden
+Automatisierte Prüfungen: 23 Python-Tests und zwölf Node-Tests. Zusätzlich wurden
 112 echte Historien/Stichtage zwischen Python- und JavaScript-Berechnung abgeglichen
 und die Bedienabläufe in einer DOM-Testumgebung geprüft. Diese ersetzt keine visuelle
 Browserprüfung der Plotly-Grafiken oder der Layoutdetails.
+
+Die zuvor veröffentlichte Desktop-Version wurde zusätzlich visuell im Browser geprüft:
+Plotly-Diagramme, Berichtwechsel und OI-Overlay funktionierten. Die neuen Bedienelemente
+sind per DOM-Ablauftests geprüft; eine visuelle Mobilprüfung steht noch aus.
+
+Die Erweiterung des Perzentilverlaufs wurde zusätzlich für 1.920 Gruppen-/Fensterwerte
+gegen die Python-Momentaufnahmen aus 112 echten Historien/Stichtagen abgeglichen.
+DOM-Ablauftests prüfen Berichte durchblättern, früheste/neueste Beobachtung,
+Stichtagsgrenzen im Verlauf, beide neuen CSV-Exporte und das Zurücksetzen nach Ladefehlern.
+Die neue Chartdarstellung ist noch nicht visuell im Browser geprüft.

@@ -8,6 +8,13 @@ a backend, API keys, paid data providers or Python dependencies.
 
 ## Neuer Analyse-Arbeitsbereich
 
+- **Perzentilverlauf:** rollierende historische Netto-Perzentile als Chart, Datentabelle
+  und CSV; jeder Punkt berücksichtigt ausschließlich seine eigene Vergangenheit.
+- **Wochenvergleich:** Nettoänderungen und Netto/OI-Änderungen über exakt 1, 4 und
+  13 Wochen für alle Händlergruppen, einschließlich Vergleichsdaten und CSV.
+- **Berichte durchblättern:** älteren/neueren Bericht öffnen oder zum neuesten
+  verfügbaren Stand zurückkehren; bestehende Analyse-Links behalten den Stichtag.
+
 - **Weekly Positioning Radar:** relative Wochenbewegungen, historische Randbereiche
   und Veränderungen des Open Interest; Wochenbriefing als Markdown exportierbar.
 - **Markt-Screener:** sortierbare Ergebnisse, Suche, Mindest-OI, historische Serien,
@@ -167,6 +174,8 @@ und eines unabhängigen Abgleichs mit einem offiziellen JSON-API-Ergebnis.
 - `site/index.html`, `site/styles.css`, `site/charts.js`: Oberfläche und Chartdarstellung.
 - `site/analytics.js`: dieselben Berechnungsdefinitionen für historische Browseransichten.
 - `site/workspace.js`: Radar, Screener, Vergleiche, lokale Einstellungen und Exporte.
+- `site/interface.js`: Bereichsnavigation, Perzentil-Heatmap, Vergleichsauswahl und Update-Prüfung.
+- `site/research.js`: Perzentilverlauf, Wochenmatrix, Beobachtungsnavigation und zugehörige Exporte.
 - `site/data/summaries/`: vorberechnete Momentaufnahmen je Berichtstyp für Radar/Screener.
 - `site/data/catalog.json`: Berichtstypen, Märkte, Zeiträume, Quellen, SHA-256-Prüfsummen
   der Originalarchive und Qualitätsstatistik.
@@ -191,3 +200,11 @@ Zentrale Farben und Komponenten liegen in `site/styles.css`: Pfirsich `#ffb98b`,
 Lavendel `#c197ff`, Mint `#8ed9c4` auf `#14121c`. Weitere Händlergruppen nutzen
 passende zusätzliche Serienfarben. Neue Inhalte sollen diese Karten-, Tabellen-
 und Steuerungsstile verwenden. Die Titelanimation berücksichtigt reduzierte Bewegung.
+
+## Navigation und Marktübersicht
+
+Radar, Analysis, Screener und Watchlist sind direkt über die Navigation erreichbar.
+Der Screener bietet zusätzlich eine Perzentil-Heatmap für alle Händlergruppen.
+Vergleichsmärkte werden per Suche und **Add market +** hinzugefügt und einzeln entfernt.
+**Check published update** meldet neue veröffentlichte Daten, bevor ein bewusstes
+Neuladen die offene Sitzung ersetzt. Details stehen in [WORKSPACE_GUIDE.md](WORKSPACE_GUIDE.md).

@@ -11,6 +11,8 @@ const workspaceState = {
   pendingAsOf: null,
   pendingCompare: [],
   page: 0,
+  activeSection: "radar",
+  compareController: null,
   snapshots: new Map(),
   researchVersion: 0,
   compareVersion: 0,
@@ -69,7 +71,7 @@ function validateStore(input) {
     !Array.isArray(input.alerts)
   )
     throw new Error("Unsupported workspace backup");
-  const output = { version: 1, watchlist: [], views: [], alerts: [] },
+  const output = { version: 1, watchlist: [], views: [], alerts: [], preferences: {screenView: input.preferences?.screenView === "heatmap" ? "heatmap" : "table"} },
     seen = new Set();
   for (const item of input.watchlist.slice(0, 100)) {
     const report = catalog.reports.find((r) => r.id === item?.report);
@@ -181,11 +183,8 @@ function updateURL() {
   if (view.oi) url.searchParams.set("oi", "1");
   if (view.compare.length)
     url.searchParams.set("compare", view.compare.join(","));
-  try {
-    window.history.replaceState(null, "", url);
-  } catch {
-    /* Still usable in restricted embeds. */
-  }
+  url.hash = workspaceState.activeSection;
+  try { window.history.replaceState(null, "", url); } catch {}
   el("shareLink").value = url.href;
 }
 function applyView(view) {
@@ -211,6 +210,7 @@ function applyView(view) {
     notice(
       "The saved contract is outside this import window. Showing an available market.",
     );
+  showSection("dashboard");
   changeReport(view.market);
 }
 function openMarket(report, code) {
@@ -218,6 +218,7 @@ function openMarket(report, code) {
   workspaceState.pendingCompare = [];
   el("latestOnly").checked = false;
   el("reportSelect").value = report;
+  showSection("dashboard");
   changeReport(code);
   el("dashboard").scrollIntoView?.({ behavior: "smooth", block: "start" });
 }
@@ -300,6 +301,7 @@ function prepareMarketWorkspace() {
     el("compareSelect").appendChild(option);
   }
   workspaceState.pendingCompare = [];
+  renderComparePicker();
 }
 function analysisHistory() {
   return history
@@ -319,6 +321,7 @@ function chartHistory(records = analysisHistory()) {
   );
 }
 function clearWorkspaceMarket() {
+  clearMarketResearch();
   el("watchToggle").disabled = true;
   el("csvDownload").disabled = true;
   el("observationSelect").disabled = true;
@@ -330,6 +333,8 @@ function clearWorkspaceMarket() {
   el("compareChart").hidden = true;
   el("compareSelect").replaceChildren();
   workspaceState.compareVersion++;
+  workspaceState.compareController?.abort();
+  el("compareCandidate").replaceChildren(); el("compareChips").replaceChildren(); el("compareAdd").disabled=true;
 }
 function renderWorkspaceMarket(series, summary) {
   const group = activeReport.groups.find((g) => g.id === focusID()),
@@ -377,6 +382,7 @@ function renderWorkspaceMarket(series, summary) {
     ? "★ In watchlist · remove"
     : "☆ Add to watchlist";
   renderComparison();
+  renderMarketResearch(series, summary);
   updateURL();
 }
 function toggleWatch(report, code, group) {
@@ -651,9 +657,12 @@ function renderScreener(rows, report) {
   el("screenPage").textContent = `Page ${workspaceState.page + 1} of ${pages}`;
   el("screenPrevious").disabled = workspaceState.page === 0;
   el("screenNext").disabled = workspaceState.page >= pages - 1;
+  renderHeatmap(filtered, report);
 }
 async function renderComparison() {
   const version = ++workspaceState.compareVersion;
+  workspaceState.compareController?.abort();
+  workspaceState.compareController = new AbortController();
   if (!activeMarket || !history) return;
   const selected = Array.from(el("compareSelect").selectedOptions);
   if (selected.length > 3) {
@@ -665,6 +674,7 @@ async function renderComparison() {
   const codes = Array.from(el("compareSelect").selectedOptions).map(
     (o) => o.value,
   );
+  renderComparePicker();
   updateURL();
   if (!codes.length) {
     el("compareChart").hidden = true;
@@ -677,19 +687,13 @@ async function renderComparison() {
     asof = el("observationSelect").value;
   el("compareStatus").textContent = "Loading comparison histories…";
   try {
-    const sets = [{ market, records: history }];
-    for (const code of codes) {
-      const m = report.markets.find((item) => item.code === code);
-      if (!m) continue;
-      const data = await getJSON(dataURL(m.path));
-      if (
-        data.report !== report.id ||
-        data.code !== code ||
-        !Array.isArray(data.records)
-      )
-        throw Error("Invalid comparison history");
-      sets.push({ market: m, records: data.records });
-    }
+    const extras = await Promise.all(codes.map(async code => {
+      const m = report.markets.find(item=>item.code===code);
+      if(!m) throw Error('Unknown comparison contract');
+      const data = await loadMarketData(report,m,workspaceState.compareController.signal);
+      return {market:m,records:data.records};
+    }));
+    const sets = [{market,records:history}, ...extras];
     if (version !== workspaceState.compareVersion || market !== activeMarket)
       return;
     const weeks =
@@ -743,7 +747,7 @@ async function renderComparison() {
     el("compareStatus").textContent =
       `${report.groups.find((g) => g.id === group).label} · net % of open interest · through ${asof}. Each series retains its own available dates; missing values are not filled. Relative positioning is not equal economic exposure.`;
   } catch (error) {
-    if (version !== workspaceState.compareVersion) return;
+    if (version !== workspaceState.compareVersion || error.name === "AbortError") return;
     console.error(error);
     el("compareChart").hidden = true;
     el("compareStatus").textContent =
@@ -1062,43 +1066,7 @@ function initializeWorkspace() {
       "text/csv;charset=utf-8",
     );
   });
-  el("screenExport").addEventListener("click", () => {
-    const rows = workspaceState.filtered.map((r) => [
-      activeReport.id,
-      r.market.code,
-      r.market.name,
-      focusID(),
-      r.snapshot.date,
-      r.value.net_share,
-      r.value.changes["1"].share_pp,
-      r.value.changes["4"].share_pp,
-      r.window.percentile,
-      r.window.cot_index,
-      r.window.n,
-      r.snapshot.open_interest,
-    ]);
-    saveFile(
-      `COTInsight-screener-${activeReport.id}.csv`,
-      csv([
-        [
-          "report",
-          "code",
-          "market",
-          "category",
-          "date",
-          "net_share_pct",
-          "1w_delta_pp",
-          "4w_delta_pp",
-          `${lookback()}w_percentile`,
-          "cot_index",
-          "observations",
-          "open_interest",
-        ],
-        ...rows,
-      ]),
-      "text/csv;charset=utf-8",
-    );
-  });
+  el("screenExport").addEventListener("click", exportScreener);
   el("radarExport").addEventListener("click", () => {
     if (workspaceState.briefing)
       saveFile(
@@ -1107,10 +1075,7 @@ function initializeWorkspace() {
         "text/markdown;charset=utf-8",
       );
   });
-  el("refreshDataset").addEventListener("click", () => {
-    updateURL();
-    window.location.reload();
-  });
+  el("refreshDataset").addEventListener("click", checkPublishedUpdate);
   el("backupExport").addEventListener("click", () =>
     saveFile(
       "COTInsight-workspace.json",
@@ -1132,6 +1097,7 @@ function initializeWorkspace() {
         watchlist: [...workspaceState.storage.watchlist, ...imported.watchlist],
         views: [...workspaceState.storage.views, ...imported.views],
         alerts: [...workspaceState.storage.alerts, ...imported.alerts],
+        preferences: workspaceState.storage.preferences,
       });
       persist();
       renderPersonal();
@@ -1194,5 +1160,8 @@ function initializeWorkspace() {
       "Local rule added. It checks the latest dataset, including when historical analysis is selected.",
     );
   });
+  initializeNavigation();
+  initializeResearchControls();
+  initializeMarketResearch();
   renderPersonal();
 }
